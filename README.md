@@ -1,1 +1,1 @@
-# SentinelHB
+# Sentinel Hub
