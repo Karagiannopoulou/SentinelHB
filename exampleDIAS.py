@@ -58,7 +58,7 @@ except:
         print("Warning! To use Sentinel Hub services, please provide the credentials (client ID and client secret).")
 
 # Load boundaries of the AOI in GeoJson format
-country = gpd.read_file(r'bbox/my.json') # Lithuania tile
+country = gpd.read_file(r'bbox\my.json') # Lithuania tile
 
 # Transform GeoJSON projection and find the dimensions 
 country_crs = CRS.UTM_34N
