@@ -84,7 +84,7 @@ gdf = gpd.GeoDataFrame({'index': idxs, 'index_x': idxs_x, 'index_y': idxs_y},
 
 
 
-shapefile_name = './bbox/grid_LithuaniaT24k.gpkg'
+shapefile_name = '.\bbox\grid_LithuaniaT24k.gpkg'
 gdf.to_file(shapefile_name, driver='GPKG')
 
 # Download the data 
@@ -144,7 +144,7 @@ for idx, bbox in enumerate(bbox_list[idxs]):
     executor.run(workers=4, multiprocess=False)
     executor.make_report()
     tiff_name = f'eopatch_{idx}.tiff'
-    ind_path = f'{path}/eopatch_{idx}'
+    ind_path = f'{path}\eopatch_{idx}'
     eopatch = EOPatch.load(ind_path, lazy_loading=False)
     bands_feature_exp=(FeatureType.DATA, 'L2A_data')
     eopath2tiff = ExportToTiff(bands_feature_exp, folder=path2)
