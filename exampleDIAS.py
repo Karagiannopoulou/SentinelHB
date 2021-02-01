@@ -84,7 +84,7 @@ gdf = gpd.GeoDataFrame({'index': idxs, 'index_x': idxs_x, 'index_y': idxs_y},
 
 
 
-shapefile_name = '.\bbox\grid_LithuaniaT24k.gpkg'
+shapefile_name = 'C:\Users\karagiannopoulou\eclipse-workspace\dioneSH2\bbox\grid_LithuaniaT24k.gpkg'
 gdf.to_file(shapefile_name, driver='GPKG')
 
 # Download the data 
