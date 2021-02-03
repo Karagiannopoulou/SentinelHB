@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style>
+        pre { line-height: 125%; margin: 0; }
+td.linenos pre { color: #000000; background-color: #f0f0f0; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #000000; background-color: #f0f0f0; padding-left: 5px; padding-right: 5px; }
+td.linenos pre.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.hll { background-color: #ffffcc }
+.c { color: #408080; font-style: italic } /* Comment */
+.err { border: 1px solid #FF0000 } /* Error */
+.k { color: #008000; font-weight: bold } /* Keyword */
+.o { color: #666666 } /* Operator */
+.ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+.cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.cp { color: #BC7A00 } /* Comment.Preproc */
+.cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+.c1 { color: #408080; font-style: italic } /* Comment.Single */
+.cs { color: #408080; font-style: italic } /* Comment.Special */
+.gd { color: #A00000 } /* Generic.Deleted */
+.ge { font-style: italic } /* Generic.Emph */
+.gr { color: #FF0000 } /* Generic.Error */
+.gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.gi { color: #00A000 } /* Generic.Inserted */
+.go { color: #888888 } /* Generic.Output */
+.gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.gs { font-weight: bold } /* Generic.Strong */
+.gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.gt { color: #0044DD } /* Generic.Traceback */
+.kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.kp { color: #008000 } /* Keyword.Pseudo */
+.kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.kt { color: #B00040 } /* Keyword.Type */
+.m { color: #666666 } /* Literal.Number */
+.s { color: #BA2121 } /* Literal.String */
+.na { color: #7D9029 } /* Name.Attribute */
+.nb { color: #008000 } /* Name.Builtin */
+.nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.no { color: #880000 } /* Name.Constant */
+.nd { color: #AA22FF } /* Name.Decorator */
+.ni { color: #999999; font-weight: bold } /* Name.Entity */
+.ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.nf { color: #0000FF } /* Name.Function */
+.nl { color: #A0A000 } /* Name.Label */
+.nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.nt { color: #008000; font-weight: bold } /* Name.Tag */
+.nv { color: #19177C } /* Name.Variable */
+.ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.w { color: #bbbbbb } /* Text.Whitespace */
+.mb { color: #666666 } /* Literal.Number.Bin */
+.mf { color: #666666 } /* Literal.Number.Float */
+.mh { color: #666666 } /* Literal.Number.Hex */
+.mi { color: #666666 } /* Literal.Number.Integer */
+.mo { color: #666666 } /* Literal.Number.Oct */
+.sa { color: #BA2121 } /* Literal.String.Affix */
+.sb { color: #BA2121 } /* Literal.String.Backtick */
+.sc { color: #BA2121 } /* Literal.String.Char */
+.dl { color: #BA2121 } /* Literal.String.Delimiter */
+.sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.s2 { color: #BA2121 } /* Literal.String.Double */
+.se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.sh { color: #BA2121 } /* Literal.String.Heredoc */
+.si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.sx { color: #008000 } /* Literal.String.Other */
+.sr { color: #BB6688 } /* Literal.String.Regex */
+.s1 { color: #BA2121 } /* Literal.String.Single */
+.ss { color: #19177C } /* Literal.String.Symbol */
+.bp { color: #008000 } /* Name.Builtin.Pseudo */
+.fm { color: #0000FF } /* Name.Function.Magic */
+.vc { color: #19177C } /* Name.Variable.Class */
+.vg { color: #19177C } /* Name.Variable.Global */
+.vi { color: #19177C } /* Name.Variable.Instance */
+.vm { color: #19177C } /* Name.Variable.Magic */
+.il { color: #666666 } /* Literal.Number.Integer.Long */
+
+        h1 {
+            text-align: center;
+        }
+
+        h2, h3, h4 {
+            margin-block-end: 0px;
+        }
+
+        p {
+            overflow: auto;
+        }
+
+        .indent {
+            margin-left: 20px;
+            overflow: auto;
+        }
+
+        .margined-div {
+            margin-block-start: 1em
+        }
+
+        .exec-status {
+            color: black;
+            padding: 10px 10px;
+            margin: 1px;
+            border-radius: 4px;
+            float: left;
+        }
+
+        .exec-finished {
+            background-color: green;
+        }
+
+        .exec-failed {
+            background-color: red;
+        }
+
+        .collapsible-content {
+          padding: 0 18px;
+          display: none;
+          overflow: hidden;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1> EOExecution Report </h1>
+
+    <h2> EOWorkflow dependency graph </h2>
+
+    <div class="indent">
+        <img src="data:image/png;base64,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" />
+    </div>
+
+    <h2> Execution status </h2>
+
+    <div class="indent">
+
+        <ul>
+            <li>
+                Start time: 10:52:20 02/03/21 
+            </li>
+            <li>
+                End time: 10:52:21 02/03/21 
+            </li>
+            <li>
+                Duration: 0:00:01.800895
+            </li>
+            <li>
+                Number of finished executions: 0
+            </li>
+            <li>
+                Number of failed executions: 1
+            </li>
+            <li>
+                Processing type: multithreading
+            </li>
+            <li>
+                Number of workers: 5
+            </li>
+        </ul>
+
+        <p>
+            
+                <a class="exec-status exec-failed"
+                   title="Execution 1"
+                   href="#execution1"
+                ></a>
+            
+        </p>
+
+        <div class="indent">
+            <a class="exec-status exec-finished"></a> &nbsp;... Execution successfully finished
+        </div>
+        <div class="indent">
+            <a class="exec-status exec-failed"></a> &nbsp;... Execution failed because of an error
+        </div>
+
+    </div>
+
+    <h2> EOTasks </h2>
+
+    <div class="indent">
+
+        <h3> Initialization parameters </h3>
+
+        <div class="indent">
+        
+            <h4> LoadTask (LoadTask_299b88) </h4>
+
+            
+                <ul>
+                    
+                        <li> <pre> path = './t1' </pre> </li>
+                    
+                </ul>
+            
+
+        
+            <h4> ExportToTiff (ExportToTiff_dd2ace) </h4>
+
+            
+                <ul>
+                    
+                        <li> <pre> feature = &lt;FeatureType.DATA: 'data'&gt; </pre> </li>
+                    
+                        <li> <pre> folder = 'L2A_data' </pre> </li>
+                    
+                </ul>
+            
+
+        
+            <h4> SaveTask (SaveTask_7ec67f) </h4>
+
+            
+                <ul>
+                    
+                        <li> <pre> path = './t2' </pre> </li>
+                    
+                </ul>
+            
+
+        
+        </div>
+
+        <h3> Source code of custom tasks </h3>
+
+        <div class="indent">
+            
+        </div>
+    </div>
+
+    <h2> Execution details </h2>
+
+    <div class="indent">
+        
+            <h3 id="execution1"> Execution 1 </h3>
+
+            <div class="indent">
+                Statistics<br/>
+                <ul>
+                    <li>Start time: 10:52:20 02/03/21 </li>
+                    <li>End time: 10:52:21 02/03/21 </li>
+                    <li>Duration: 0:00:01.798874</li>
+                </ul>
+                
+                    Error<br/>
+                    <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\osfs.py&quot;</span>, line <span class="m">337</span>, in <span class="n">makedir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">sys_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+<span class="gr">PermissionError</span>: <span class="n">[WinError 5] Access is denied: b&#39;C:\\&#39;</span>
+
+<span class="gt">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eotask.py&quot;</span>, line <span class="m">72</span>, in <span class="n">_execute_handling</span>
+    <span class="n">return_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">eopatches</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\io\local_io.py&quot;</span>, line <span class="m">310</span>, in <span class="n">execute</span>
+    <span class="n">filesystem</span><span class="p">,</span> <span class="n">filename_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_filesystem_and_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">eopatch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">create_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\io\local_io.py&quot;</span>, line <span class="m">78</span>, in <span class="n">_get_filesystem_and_paths</span>
+    <span class="n">filesystem</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">filename_path</span><span class="p">,</span> <span class="n">recreate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\base.py&quot;</span>, line <span class="m">1076</span>, in <span class="n">makedirs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">makedir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">permissions</span><span class="o">=</span><span class="n">permissions</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\osfs.py&quot;</span>, line <span class="m">345</span>, in <span class="n">makedir</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">opendir</span><span class="p">(</span><span class="n">_path</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\error_tools.py&quot;</span>, line <span class="m">90</span>, in <span class="n">__exit__</span>
+    <span class="n">reraise</span><span class="p">(</span><span class="n">fserror</span><span class="p">,</span> <span class="n">fserror</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exc</span><span class="o">=</span><span class="n">exc_value</span><span class="p">),</span> <span class="n">traceback</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\AppData\Roaming\Python\Python36\site-packages\six.py&quot;</span>, line <span class="m">702</span>, in <span class="n">reraise</span>
+    <span class="k">raise</span> <span class="n">value</span><span class="o">.</span><span class="n">with_traceback</span><span class="p">(</span><span class="n">tb</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\osfs.py&quot;</span>, line <span class="m">337</span>, in <span class="n">makedir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">sys_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+<span class="gr">fs.errors.DirectoryExpected</span>: <span class="n">path &#39;&#39; should be a directory</span>
+
+<span class="gt">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eoexecution.py&quot;</span>, line <span class="m">199</span>, in <span class="n">_execute_workflow</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">input_args</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eoworkflow.py&quot;</span>, line <span class="m">171</span>, in <span class="n">execute</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">WorkflowResults</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_execute_tasks</span><span class="p">(</span><span class="n">input_args</span><span class="o">=</span><span class="n">input_args</span><span class="p">,</span> <span class="n">out_degs</span><span class="o">=</span><span class="n">out_degs</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="n">monitor</span><span class="p">))</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eoworkflow.py&quot;</span>, line <span class="m">209</span>, in <span class="n">_execute_tasks</span>
+    <span class="n">monitor</span><span class="o">=</span><span class="n">monitor</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eoworkflow.py&quot;</span>, line <span class="m">242</span>, in <span class="n">_execute_task</span>
+    <span class="k">return</span> <span class="n">task</span><span class="p">(</span><span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_inputs</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="n">monitor</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eotask.py&quot;</span>, line <span class="m">59</span>, in <span class="n">__call__</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_handling</span><span class="p">(</span><span class="o">*</span><span class="n">eopatches</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eotask.py&quot;</span>, line <span class="m">85</span>, in <span class="n">_execute_handling</span>
+    <span class="k">raise</span> <span class="n">extended_exception</span><span class="o">.</span><span class="n">with_traceback</span><span class="p">(</span><span class="n">traceback</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\core\eotask.py&quot;</span>, line <span class="m">72</span>, in <span class="n">_execute_handling</span>
+    <span class="n">return_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">eopatches</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\io\local_io.py&quot;</span>, line <span class="m">310</span>, in <span class="n">execute</span>
+    <span class="n">filesystem</span><span class="p">,</span> <span class="n">filename_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_filesystem_and_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">eopatch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">create_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\eolearn\io\local_io.py&quot;</span>, line <span class="m">78</span>, in <span class="n">_get_filesystem_and_paths</span>
+    <span class="n">filesystem</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">filename_path</span><span class="p">,</span> <span class="n">recreate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\base.py&quot;</span>, line <span class="m">1076</span>, in <span class="n">makedirs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">makedir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">permissions</span><span class="o">=</span><span class="n">permissions</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\osfs.py&quot;</span>, line <span class="m">345</span>, in <span class="n">makedir</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">opendir</span><span class="p">(</span><span class="n">_path</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\error_tools.py&quot;</span>, line <span class="m">90</span>, in <span class="n">__exit__</span>
+    <span class="n">reraise</span><span class="p">(</span><span class="n">fserror</span><span class="p">,</span> <span class="n">fserror</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exc</span><span class="o">=</span><span class="n">exc_value</span><span class="p">),</span> <span class="n">traceback</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\AppData\Roaming\Python\Python36\site-packages\six.py&quot;</span>, line <span class="m">702</span>, in <span class="n">reraise</span>
+    <span class="k">raise</span> <span class="n">value</span><span class="o">.</span><span class="n">with_traceback</span><span class="p">(</span><span class="n">tb</span><span class="p">)</span>
+  File <span class="nb">&quot;C:\Users\karagiannopoulou\Miniconda3\envs\dioneSH\lib\site-packages\fs\osfs.py&quot;</span>, line <span class="m">337</span>, in <span class="n">makedir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">sys_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+<span class="gr">fs.errors.DirectoryExpected</span>: <span class="n">path &#39;During execution of task ExportToTiff: path &#39;&#39; should be a directory&#39; should be a directory</span>
+</pre></div>
+</td></tr></table>
+                
+
+                <button class="collapsible">Logs</button>
+                <div class="collapsible-content">
+                  <pre>2021-02-03 10:52:20,189 eolearn.core.eoworkflow DEBUG    Computing LoadTask(*(), **{'eopatch_folder': 'eopatch_0'})
+2021-02-03 10:52:20,705 eolearn.core.eoworkflow DEBUG    Computing ExportToTiff(*(EOPatch(
+  data: {
+    L2A_data: numpy.ndarray(shape=(11, 2400, 2400, 4), dtype=float32)
+  }
+  mask: {}
+  scalar: {}
+  label: {}
+  vector: {}
+  data_timeless: {}
+  mask_timeless: {}
+  scalar_timeless: {}
+  label_timeless: {}
+  vector_timeless: {}
+  meta_info: {
+    maxcc: 0.9
+    service_type: 'processing'
+    size_x: 2400
+    size_y: 2400
+    time_difference: datetime.timedelta(0, 7200)
+    time_interval: ('2021-01-01T00:00:00', '2021-02-03T10:51:22.636796')
+  }
+  bbox: BBox(((480000.0, 6072000.0), (504000.0, 6096000.0)), crs=CRS('32634'))
+  timestamp: [datetime.datetime(2021, 1, 2, 9, 55, 8), ..., datetime.datetime(2021, 2, 1, 9, 55, 10)], length=11
+),), **{'filename': './t1\\eopatch_0.tiff'})
+2021-02-03 10:52:21,987 root         DEBUG    EOWorkflow execution failed
+</pre>
+                </div>
+            </div>
+        
+    </div>
+
+    <script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    }
+    </script>
+
+</body>
+</html>
