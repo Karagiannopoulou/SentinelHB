@@ -25,9 +25,9 @@ path10  = r'.\output10'
 path20  = r'.\output20'
 
 # Credentials and authorisation     
-INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
-CLIENT_ID     = '629e3c27-b93e-4990-83d5-106707ffff1b'
-CLIENT_SECRET = 's}lwWt}EUC6Irw0D7H[Cf5Q[G[]QT51aAg6|8W#%'
+INSTANCE_ID   = ''
+CLIENT_ID     = ''
+CLIENT_SECRET = ''
 
 config = SHConfig()
 try:
