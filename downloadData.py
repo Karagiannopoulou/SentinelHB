@@ -6,28 +6,30 @@ import os
 # Data visualisation/Datetime
 import numpy as np
 import datetime
+import time
 
 # Basics of GIS
 import geopandas as gpd
 from shapely.geometry import Polygon
 
-# The core of this example
+# The core of this exampleFinal
 from eolearn.core import *
 from eolearn.io import *
 from sentinelhub import * 
 
 
-
+start_time = time.time()
 
 # Define global variables 
 # Path for nparrays
-path10  = r'.\output10'
-path20  = r'.\output20'
+path10  = r'.\output10_CY'
+path20  = r'.\output20_CY'
+logsFolder = r'.\logsFolder'
 
 # Credentials and authorisation     
-INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
-CLIENT_ID     = '629e3c27-b93e-4990-83d5-106707ffff1b'
-CLIENT_SECRET = 's}lwWt}EUC6Irw0D7H[Cf5Q[G[]QT51aAg6|8W#%'
+INSTANCE_ID   = ''
+CLIENT_ID     = ''
+CLIENT_SECRET = ''
 
 config = SHConfig()
 try:
@@ -51,7 +53,7 @@ def dataDir(outputpath_10, outputpath_20):
     '''
     try:
         os.mkdir(outputpath_10)
-        os.mkdir(outputpath_10)
+        os.mkdir(outputpath_20)
     except OSError:
         print ("Creation of the directory %s failed" % outputpath_10)
         print ("Creation of the directory %s failed" % outputpath_20)
@@ -98,7 +100,7 @@ def patchesGenerator(country, country_shape, outputname, patches = 24000):
     
     return [idxs, bbox_list]
 
-def downloadEO(maxcc, resolution, path10, path20, idxs, bbox_list):
+def downloadEO(maxcc, resolution, path10, path20, logsFolder, idxs, bbox_list):
     
     time_interval = ('2021-01-01', datetime.datetime.today())
     
@@ -150,12 +152,12 @@ def downloadEO(maxcc, resolution, path10, path20, idxs, bbox_list):
         }
         
         execution_args10.append(tmp10)
-        executor10 = EOExecutor(workflow10, [tmp10], save_logs=True, logs_folder=path10)
+        executor10 = EOExecutor(workflow10, [tmp10], save_logs=True, logs_folder=logsFolder)
         executor10.run(workers=4, multiprocess=False)
         executor10.make_report()
         
         execution_args20.append(tmp20)
-        executor20 = EOExecutor(workflow20, [tmp20], save_logs=True, logs_folder=path20)
+        executor20 = EOExecutor(workflow20, [tmp20], save_logs=True, logs_folder=logsFolder)
         executor20.run(workers=4, multiprocess=False)
         executor20.make_report()
     
@@ -163,14 +165,17 @@ def downloadEO(maxcc, resolution, path10, path20, idxs, bbox_list):
 
 def main():
     paths = dataDir(path10,path20)
-    shape = createGeoJson(geospatialFolder, 'my.json')
-    patches = patchesGenerator(shape[0],shape[1], 'tile_Lth')
+    shape = createGeoJson(geospatialFolder, 'LithAOI.json')
+    patches = patchesGenerator(shape[0],shape[1], 'tile_Lith')
     bbox_list=patches[1]; idxs_G = patches[0]
-    eopatches = downloadEO(0.1, resolution, paths[0], paths[1], idxs_G, bbox_list)
+    eopatches = downloadEO(0.1, resolution, paths[0], paths[1], logsFolder, idxs_G, bbox_list)
     print(eopatches)
-    
+     
 
 
 if __name__ == '__main__':
     main()
 
+
+elapsed_time = time.time() - start_time
+print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
