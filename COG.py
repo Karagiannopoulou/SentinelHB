@@ -26,7 +26,7 @@ def congify(input_path, subfolder_prefix, blocksize=2048, nodata=None):
                     if nodata is not None: 
                         gdaltranslate_options += ' -a_nodata ' + str(nodata)
                     gdal.Translate(output_COG, img, options=gdaltranslate_options)
-                    
+                    os.remove(filename_path)
                                         
 if __name__ == '__main__':
     congify(mainDirectory, '202')
