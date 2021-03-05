@@ -36,7 +36,7 @@ from osgeo import gdal
 
 
 def Usage():
-    print('Usage: validate_cloud_optimized_geotiff.py [-q] [--full-check=yes/no/auto] test.tif')
+    print('Usage: validate_cloud_optimized_geotiff.py [-q] [--full-check=yes/no/auto] py.tif')
     print('')
     print('Options:')
     print('-q: quiet mode')
