@@ -12,24 +12,27 @@ import time
 import geopandas as gpd
 from shapely.geometry import Polygon
 
-# The core of this exampleFinal
+# Sentinel Hub libs
 from eolearn.core import *
 from eolearn.io import *
 from sentinelhub import * 
 
+# import custom scripts
+from general_functions import makepath
+from getEOPatches import createGeoJson, patchesGenerator, splitpatches_Lithuania, splitpatches_Cyprus
 
 start_time = time.time()
 
-# Define global variables 
-# Path for nparrays
-path10  = r'.\output10_CY'
-path20  = r'.\output20_CY'
+# Define local paths 
+mainroot = r'.'
 logsFolder = r'.\logsFolder'
+# Load wkt with the AOI
+geospatialFolder = r'bbox'
 
 # Credentials and authorisation     
-INSTANCE_ID   = ''
-CLIENT_ID     = ''
-CLIENT_SECRET = ''
+INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
+CLIENT_ID     = '629e3c27-b93e-4990-83d5-106707ffff1b'
+CLIENT_SECRET = 's}lwWt}EUC6Irw0D7H[Cf5Q[G[]QT51aAg6|8W#%'
 
 config = SHConfig()
 try:
@@ -41,68 +44,111 @@ except:
     if config.sh_client_id == '' & config.sh_client_secret == '' & config.instance_id == '': 
         print("Warning! To use Sentinel Hub services, please provide the credentials (client ID and client secret).")
 
-# Load wkt with the AOI
-geospatialFolder = r'bbox'
-
 # Variables for the downloadEO function
 resolution = [10,20]
 
-def dataDir(outputpath_10, outputpath_20):
-    '''
-    Create directory if not exists
-    '''
-    try:
-        os.mkdir(outputpath_10)
-        os.mkdir(outputpath_20)
-    except OSError:
-        print ("Creation of the directory %s failed" % outputpath_10)
-        print ("Creation of the directory %s failed" % outputpath_20)
-    else:
-        print ("Successfully created the directory %s" % outputpath_10)
-        print ("Successfully created the directory %s" % outputpath_20)
-    return[outputpath_10, outputpath_20]  
 
-def createGeoJson(geospatialFolder, filename):
+def downloadEO_Lithuania(mainroot, input_task10, input_task20, updatedPatches_Lth, time_interval):
+        path10_Lth = os.path.join(mainroot, 'output10'); path20_Lth = os.path.join(mainroot, 'output20')
+        path10_Lithuania = makepath(path10_Lth); path20_Lithuania = makepath(path20_Lth)
+        
+        idxs = updatedPatches_Lth[0]; bbox_list = updatedPatches_Lth[1] 
+        
+        save10 = SaveTask(path10_Lithuania, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
+        save20 = SaveTask(path20_Lithuania, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
+        
+        workflow10= LinearWorkflow(
+            input_task10, 
+            save10
+        )
+        
+        workflow20 = LinearWorkflow(
+            input_task20,
+            save20
+        )
+        
+        execution_args10 = []; execution_args20 = []
     
-    AOI = os.path.join(geospatialFolder, filename)
-    print(AOI)
-   
-    # Load boundaries of the AOI in GeoJson format
-    country = gpd.read_file(AOI) # Lithuania tile
+    
+        for idx, bbox in enumerate(bbox_list[idxs]):
+            print(f'Processing Lithuania:{idx}')
+            
+            tmp10 = {
+                input_task10:{'bbox': bbox, 'time_interval': time_interval},
+                save10: {'eopatch_folder': f'eopatch_10_{idx}'}
+                }
+            
+            tmp20 = {
+                input_task20:{'bbox': bbox, 'time_interval': time_interval},
+                save20: {'eopatch_folder': f'eopatch_20_{idx}'}
+                }
+        
+            execution_args10.append(tmp10)
+            executor10 = EOExecutor(workflow10, [tmp10], save_logs=True, logs_folder=logsFolder)
+            executor10.run(workers=4, multiprocess=False)
+            executor10.make_report()
+            
+            execution_args20.append(tmp20)
+            executor20 = EOExecutor(workflow20, [tmp20], save_logs=True, logs_folder=logsFolder)
+            executor20.run(workers=4, multiprocess=False)
+            executor20.make_report()
 
-    # Transform GeoJSON projection and find the dimensions 
-    country_crs = CRS.UTM_34N
-    country = country.to_crs(crs={'init': CRS.ogc_string(country_crs)})
-    
-    # Get the country's shape in polygon format
-    country_shape = country.geometry.values[-1]
-    return [country, country_shape]
 
-def patchesGenerator(country, country_shape, outputname, patches = 24000):  
-    
-    shapefile_name = f'{outputname}.gpkg'
-    shapefile_fullpath = os.path.join(geospatialFolder,shapefile_name)  
-    
-    # Create the splitter to obtain a list of bboxes
-    bbox_splitter = UtmZoneSplitter([country_shape], country.crs, patches) # 35 patches per S2 image tile 
-    bbox_list = np.array(bbox_splitter.get_bbox_list())
-    info_list = np.array(bbox_splitter.get_info_list())    
-    # Generate the shapefile with the EOPatches
-    geometry = [Polygon(bbox.get_polygon()) for bbox in bbox_list]
-    idxs = [info['index'] for info in info_list]
-    idxs_x = [info['index_x'] for info in info_list]
-    idxs_y = [info['index_y'] for info in info_list]
-    gdf = gpd.GeoDataFrame({'index': idxs, 'index_x': idxs_x, 'index_y': idxs_y}, 
-                               crs=country.crs, 
-                               geometry=geometry)
+def downloadEO_Cyprus(mainroot, input_task10, input_task20, updatedPatches_Cy, time_interval):
+        
+        path10_Cy = os.path.join(mainroot, 'output10_CY'); path20_Cy = os.path.join(mainroot, 'output20_CY')
+        path10_Cyprus = makepath(path10_Cy); path20_Cyprus = makepath(path20_Cy)
+        
+        cidxs = updatedPatches_Cy[0]; cbbox_list = updatedPatches_Cy[1]
 
-    gdf.to_file(shapefile_fullpath, driver='GPKG')
+        save10 = SaveTask(path10_Cyprus, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
+        save20 = SaveTask(path20_Cyprus, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
+        
+        workflow10= LinearWorkflow(
+            input_task10, 
+            save10
+        )
+        
+        workflow20 = LinearWorkflow(
+            input_task20,
+            save20
+        )
+        
+        execution_args10 = []; execution_args20 = []
     
-    return [idxs, bbox_list]
+    
+        for idx, bbox in enumerate(cbbox_list[cidxs]):
+            print(f'Processing Cyprus:{idx}')
+            
+            tmp10 = {
+                input_task10:{'bbox': bbox, 'time_interval': time_interval},
+                save10: {'eopatch_folder': f'eopatch_10_{idx}'}
+                }
+            
+            tmp20 = {
+                input_task20:{'bbox': bbox, 'time_interval': time_interval},
+                save20: {'eopatch_folder': f'eopatch_20_{idx}'}
+                }
+        
+            execution_args10.append(tmp10)
+            executor10 = EOExecutor(workflow10, [tmp10], save_logs=True, logs_folder=logsFolder)
+            executor10.run(workers=4, multiprocess=False)
+            executor10.make_report()
+            
+            execution_args20.append(tmp20)
+            executor20 = EOExecutor(workflow20, [tmp20], save_logs=True, logs_folder=logsFolder)
+            executor20.run(workers=4, multiprocess=False)
+            executor20.make_report()
 
-def downloadEO(maxcc, resolution, path10, path20, logsFolder, idxs, bbox_list):
+
+def downloadEO(resolution, maxcc=0.1):
     
-    time_interval = ('2021-01-01', datetime.datetime.today())
+    shape = createGeoJson(geospatialFolder, 'LithAOI.json', 'CyAOI.json')    
+    patchesList = patchesGenerator(shape[0],shape[1],shape[2],shape[3])
+    updatedPatches_Lth = splitpatches_Lithuania(shape[0], patchesList[0], patchesList[1])
+    updatedPatches_Cy = splitpatches_Cyprus(shape[2], patchesList[2], patchesList[3])
+    
+    time_interval = ('2021-01-01', '2021-02-28')
     
     input_task10 = SentinelHubInputTask(
         data_collection=DataCollection.SENTINEL2_L2A,
@@ -126,56 +172,30 @@ def downloadEO(maxcc, resolution, path10, path20, logsFolder, idxs, bbox_list):
         max_threads=5
     )
     
-    save10 = SaveTask(path10, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
-    save20 = SaveTask(path20, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
+    downloadEO_Lithuania(mainroot, input_task10, input_task20, updatedPatches_Lth, time_interval)
     
-    workflow10 = LinearWorkflow(
-        input_task10,
-        save10
-    )
-    workflow20 = LinearWorkflow(
-        input_task20,
-        save20
-    ) 
-    execution_args10 = []; execution_args20 = []
+    downloadEO_Cyprus(mainroot, input_task10, input_task20, updatedPatches_Cy, time_interval)
     
-    for idx, bbox in enumerate(bbox_list[idxs]):
-        print("Processing: %s"%(idx))
-        tmp10 = {
-            input_task10:{'bbox': bbox, 'time_interval': time_interval},
-            save10: {'eopatch_folder': f'eopatch_10_{idx}'},
-        }
-        
-        tmp20 = {
-            input_task20:{'bbox': bbox, 'time_interval': time_interval},
-            save20: {'eopatch_folder': f'eopatch_20_{idx}'},
-        }
-        
-        execution_args10.append(tmp10)
-        executor10 = EOExecutor(workflow10, [tmp10], save_logs=True, logs_folder=logsFolder)
-        executor10.run(workers=4, multiprocess=False)
-        executor10.make_report()
-        
-        execution_args20.append(tmp20)
-        executor20 = EOExecutor(workflow20, [tmp20], save_logs=True, logs_folder=logsFolder)
-        executor20.run(workers=4, multiprocess=False)
-        executor20.make_report()
     
-
-
-def main():
-    paths = dataDir(path10,path20)
-    shape = createGeoJson(geospatialFolder, 'LithAOI.json')
-    patches = patchesGenerator(shape[0],shape[1], 'tile_Lith')
-    bbox_list=patches[1]; idxs_G = patches[0]
-    eopatches = downloadEO(0.1, resolution, paths[0], paths[1], logsFolder, idxs_G, bbox_list)
-    print(eopatches)
-     
+    
 
 
 if __name__ == '__main__':
-    main()
+    downloadEO(resolution)
 
 
 elapsed_time = time.time() - start_time
 print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
+
+
+
+
+
+
+
+
+
+
+
+
