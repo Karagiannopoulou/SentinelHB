@@ -1,4 +1,4 @@
-import os,sys, shutil
+import os,sys
 
 # Sinergise libraries
 from eolearn.core import *
@@ -7,19 +7,13 @@ from sentinelhub import *
 
 # geospatial libraries
 from osgeo import gdal, ogr, osr
-
+import numpy as np
 # custom libraries
 from general_functions import makepath
 
-import numpy as np
-import datetime
-import time
-
-start_time = time.time()
-
 # Global variables
 mainDirectory = r'.'
-outputDirectory = r'D:\DIONE\WP3\SuperResolution'
+outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
 
 def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff'):
     name = os.path.basename(os.path.normpath(subdirPath))
@@ -52,7 +46,7 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
             DataSet = None
 
 
-def Export2Tiff(mainroot, outputDirectory, subfolder_prefix = 'out'):
+def export2TIFF(mainroot, outputDirectory, subfolder_prefix = 'out'):
     # input path: the main directory where the eopatches are stored
     # output directory: where the geotiffs will be exported 
     # subfolder prefix: a prefix such as the word 'out' that indicates the specific folder where the eopatches are stored
@@ -76,9 +70,6 @@ def Export2Tiff(mainroot, outputDirectory, subfolder_prefix = 'out'):
                     geotiff_Generator(subdirPath, dateslist, outputsubPath, 32636)
 
 if __name__ == '__main__':
-    Export2Tiff(mainDirectory, outputDirectory)
+    export2TIFF(mainDirectory, outputDirectory)
     
-    
-    
-elapsed_time = time.time() - start_time
-print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
