@@ -1,14 +1,13 @@
-import os, sys, shutil
+import os, sys
 
 # libs related to time
-import datetime
-import time
+from datetime import datetime
 
 # data manipulation
 import collections
+import json 
 
 # geospatial libs
-import json 
 import rasterio
 from rasterio.merge import merge
 
@@ -16,11 +15,9 @@ from rasterio.merge import merge
 # from createMultibands import single2multi
 from general_functions import makepath, cleanFolder
 
-start_time = time.time()
-
 # Global variables
-mainDirectory = r'.'
-connectingFolder = r'D:\DIONE\WP3\SuperResolution'
+mainDirectory = r'.\downloadData'
+connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData'
 
 def getDates(mainroot, subfolder_prefix='out'):
     dateslist = []
@@ -78,7 +75,8 @@ def getSingleDates(mainroot, subfolder_prefix='out'):
 
     return [dataDir10, dataDir20]
 
-def getDictionary():
+
+def getDictionary(mainroot):    
     # ini input and output variables     
     dictionaries = getSingleDates(connectingFolder)
     dict10 = dictionaries[0]
@@ -86,6 +84,11 @@ def getDictionary():
 
     bandsList10 = ['B1', 'B2', 'B3', 'B4'] ; bandsList20 = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
     tmpList10 = []; tmpList20 = [] 
+    
+    # remove the older dictionaries in order to write the new ones    
+    for ffile in os.listdir(mainroot):
+        if ffile.endswith('.json'):
+            os.remove(ffile)
     
     for values in dict10.values():
         tmp = {}
@@ -99,7 +102,12 @@ def getDictionary():
     dict10_keys = list(dict10.keys()) 
     mainDict10 = dict(zip(dict10_keys, tmpList10))
     
-    with open("mainDict10.json", "w") as outfile:  
+    # Add in the json filename the datetime of its creation. 
+    now = datetime.now()
+    dt_string = now.strftime('%Y%m%d')
+    mainDict10json_Name = f'mainDict10_{dt_string}.json'
+    
+    with open(mainDict10json_Name, "w") as outfile:  
         json.dump(mainDict10, outfile) 
     
     
@@ -115,9 +123,15 @@ def getDictionary():
     dict20_keys = list(dict20.keys()) 
     mainDict20 = dict(zip(dict20_keys, tmpList20))
     
-    with open("mainDict20.json", "w") as outfile:  
+    now = datetime.now()
+    dt_string = now.strftime('%Y%m%d')
+    mainDict20json_Name = f'mainDict20_{dt_string}.json'
+    
+    with open(mainDict20json_Name, "w") as outfile:  
         json.dump(mainDict20, outfile) 
     
+    
+    return mainDict10json_Name, mainDict20json_Name
     
 def write_mosaic(out_meta, mosaic, out_trans, folder_name, outputroot, band, key, zone):
 
@@ -143,13 +157,16 @@ def write_mosaic(out_meta, mosaic, out_trans, folder_name, outputroot, band, key
     with rasterio.open(mosaicName_fullpath, "w", **out_meta) as dest: # write the built mosaic
         dest.write(mosaic)       
           
-                           
-def createMosaics (json_10, json_20, root=mainDirectory, outputroot=connectingFolder):
+
+
+def createMosaics (root, outputroot):
     
     Lith_foldername10 = 'Lith_output10'; Lith_foldername20 = 'Lith_output20' 
     Cy_foldername10 = 'CY_output10'; Cy_foldername20 = 'CY_output20' 
     
-    dict10 = f'{root}\{json_10}'; dict20 = f'{root}\{json_20}'
+    dict10Name, dict20Name = getDictionary(mainDirectory) 
+    
+    dict10 = os.path.join(root, dict10Name); dict20 = os.path.join(root, dict20Name)   
     J10 = open(dict10); J20 = open(dict20)
     dictJSON_10 = json.load(J10); dictJSON_20 = json.load(J20)  
     
@@ -192,10 +209,4 @@ def createMosaics (json_10, json_20, root=mainDirectory, outputroot=connectingFo
     cleanFolder(outputroot, subfolder_prefix='out') # clean the folders containing the data from which the mosaics were created
 
 if __name__ == '__main__':     
-    getDictionary()
-    createMosaics('mainDict10.json', 'mainDict20.json')
-
-    
-      
-elapsed_time = time.time() - start_time
-print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+    createMosaics(mainDirectory, connectingFolder)
