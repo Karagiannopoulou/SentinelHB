@@ -1,16 +1,10 @@
 #!/usr/bin/env python
 # Default libs
-import sys
-import os
+import os, sys
 
 # Data visualisation/Datetime
-import numpy as np
+import json 
 import datetime
-import time
-
-# Basics of GIS
-import geopandas as gpd
-from shapely.geometry import Polygon
 
 # Sentinel Hub libs
 from eolearn.core import *
@@ -18,21 +12,19 @@ from eolearn.io import *
 from sentinelhub import * 
 
 # import custom scripts
-from general_functions import makepath
+from general_functions import makepath, cleanFolder
 from getEOPatches import createGeoJson, patchesGenerator, splitpatches_Lithuania, splitpatches_Cyprus
 
-start_time = time.time()
-
 # Define local paths 
-mainroot = r'.'
-logsFolder = r'.\logsFolder'
+mainroot = r'.\downloadData'
+logsFolder = r'.\downloadData\logsFolder'
 # Load wkt with the AOI
-geospatialFolder = r'bbox'
+geospatialFolder = r'.\downloadData\bbox'
 
 # Credentials and authorisation     
-INSTANCE_ID   = ''
-CLIENT_ID     = ''
-CLIENT_SECRET = ''
+INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
+CLIENT_ID     = '629e3c27-b93e-4990-83d5-106707ffff1b'
+CLIENT_SECRET = 's}lwWt}EUC6Irw0D7H[Cf5Q[G[]QT51aAg6|8W#%'
 
 config = SHConfig()
 try:
@@ -141,15 +133,75 @@ def downloadEO_Cyprus(mainroot, input_task10, input_task20, updatedPatches_Cy, t
             executor20.make_report()
 
 
-def downloadEO(resolution, maxcc=0.1):
+
+def dynamic_startDate(root=mainroot):
     
+    dict10 ={}; dict20={}; list_with_dates_10 = []; list_with_dates_20 = [] 
+    
+    for ffile in os.listdir(root):
+        if 'mainDict10' in ffile:
+            jsonsPath10 = os.path.join(root, ffile)
+            json10 = open(jsonsPath10)
+            dict10=json.load(json10)          
+                        
+        elif 'mainDict20' in ffile:
+            jsonsPath20 = os.path.join(root, ffile)
+            json20 = open(jsonsPath20)
+            dict20=json.load(json20)
+    
+    for (keys10,keys20) in zip(dict10.keys(), dict20.keys()):
+        date_dts10 = datetime.datetime.strptime(keys10, '%Y%m%dT%H%M%S')
+        date_dts20 = datetime.datetime.strptime(keys20, '%Y%m%dT%H%M%S')
+        list_with_dates_10.append(date_dts10); list_with_dates_20.append(date_dts20)
+    
+    # calculate the latest datetime from a list of the images days 
+    youngest10 = max(list_with_dates_10); youngest20 = max(list_with_dates_20)
+    
+    # pic the latest date
+    if youngest10>youngest20:
+        youngest10_Str = youngest10.strftime('%Y-%m-%d')
+        time_start=youngest10_Str
+    elif youngest20>youngest10:
+        youngest20_Str = youngest20.strftime('%Y-%m-%d')
+        time_start=youngest20_Str
+    else:
+        youngest10_Str = youngest10.strftime('%Y-%m-%d')
+        time_start=youngest10_Str
+    
+    return time_start                                                                                                                   
+
+
+def starting_time(root=mainroot):
+    
+    if any(File.endswith(".json") for File in os.listdir(root)):
+        starting_Date = dynamic_startDate(root)
+    else:
+        starting_Date = '01-01-2021'
+    
+    return starting_Date
+    
+def downloadEO(resolution, start_date, maxcc=0.1):
+    
+    # Initialize variables 
     shape = createGeoJson(geospatialFolder, 'LithAOI.json', 'CyAOI.json')    
-    patchesList = patchesGenerator(shape[0],shape[1],shape[2],shape[3])
+    patchesList = patchesGenerator(shape[0],shape[1],shape[2],shape[3]) 
     updatedPatches_Lth = splitpatches_Lithuania(shape[0], patchesList[0], patchesList[1])
     updatedPatches_Cy = splitpatches_Cyprus(shape[2], patchesList[2], patchesList[3])
     
-    time_interval = ('2021-01-01', '2021-02-28')
+    # remove older log folders
+    cleanFolder(mainroot, subfolder_prefix='logs')
     
+    # Define the start date and end date
+        # start time
+    
+    
+    start_datetime = start_date
+        # end date
+    now = datetime.datetime.now()
+    end_datetime = now.strftime('%Y-%m-%d')
+    time_interval = (start_datetime, end_datetime)
+    
+    # Define the parameters for the service request
     input_task10 = SentinelHubInputTask(
         data_collection=DataCollection.SENTINEL2_L2A,
         bands=['B02','B03','B04','B08'], #10m
@@ -175,17 +227,14 @@ def downloadEO(resolution, maxcc=0.1):
     downloadEO_Lithuania(mainroot, input_task10, input_task20, updatedPatches_Lth, time_interval)
     
     downloadEO_Cyprus(mainroot, input_task10, input_task20, updatedPatches_Cy, time_interval)
-    
-    
-    
+     
 
 
 if __name__ == '__main__':
-    downloadEO(resolution)
+    start_datetime = starting_time()
+    downloadEO(resolution, start_datetime)
 
 
-elapsed_time = time.time() - start_time
-print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 
 
