@@ -27,6 +27,7 @@ outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
 
 def downloader():
     # Download Sentinel-2 data
+    print('Initiating the process .........')
     start_datetime = starting_time()
     downloadEO(resolution, start_datetime)
     
@@ -46,7 +47,7 @@ def downloader():
 
 def main():
     downloader()
-    schedule.every(2).days.at("07:00").do(downloader())
+    schedule.every(2).days.do(downloader)
     
     while True:
         schedule.run_pending()
@@ -56,7 +57,7 @@ def main():
 if __name__ == '__main__':
     main()
     
-    
 # end counting processing time
 elapsed_time = time.time() - start_time
-print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))    
+
