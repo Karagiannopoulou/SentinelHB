@@ -13,6 +13,7 @@ from sentinelhub import *
 from downloadData import starting_time, downloadEO
 from geotiffCreator import export2TIFF
 from mosaics import getDictionary, createMosaics
+from general_functions import cleanFolder
 from createMultibands import single2multi
 
 # start counting processing time
@@ -38,6 +39,7 @@ def downloader():
     print('Starting creating mosaics.........')
     getDictionary(mainDirectory)
     createMosaics(mainDirectory, outputDirectory)
+    cleanFolder(outputDirectory, subfolder_prefix='out') # clean the folders containing the data from which the mosaics were created
     single2multi(outputDirectory)
     print('multistack mosaics are ready')
 
