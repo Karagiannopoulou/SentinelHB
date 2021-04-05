@@ -1,4 +1,4 @@
-import os,sys
+import os,sys, shutil
 
 # Sinergise libraries
 from eolearn.core import *
@@ -12,38 +12,43 @@ import numpy as np
 from general_functions import makepath
 
 # Global variables
-mainDirectory = r'.'
+mainDirectory = r'.\downloadData'
 outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
 
 def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff'):
-    name = os.path.basename(os.path.normpath(subdirPath))
-    pixelRes = name.split('_')[1] # change the resolution based on the name of the eopatch folder
+    # subdirPath: it is the eopatches folder path e.g. .\downloadData\output10\eopatch_10_0
+    
+    name = os.path.basename(os.path.normpath(subdirPath)) # getting the eopatches (e.g eopatch_10_0)
+    pixelRes = name.split('_')[1] # getting the spatial resolution from the folder name
     eopatch = EOPatch.load(subdirPath, lazy_loading=False)
-#                     cols = eopatch.meta_info['size_x']
-#                     rows = eopatch.meta_info['size_y']
     xmin,ymin,xmax,ymax = eopatch.bbox
     timestamp = eopatch.timestamp
     for time,arr in zip(list(timestamp),eopatch.data['L2A_data']):
         datetime_str = time.strftime('%Y%m%dT%H%M%S')
         dateslist.append(datetime_str)
-        tmp_name = f'{name}_{datetime_str}'
+        tmp_name = f'{name}_{datetime_str}' # create the eopatch folder e.g.eopatch_10_0_20210305T094513
         tmp_fullpath = os.path.join(outputsubPath, tmp_name)
-        tmpDir_fullpath = makepath(tmp_fullpath)
-                                       
+        tmpDir_fullpath = makepath(tmp_fullpath)                             
         cols,rows,bands= np.shape(arr)                                                                  
         data = np.moveaxis(arr, -1, 0) # reshape the dimensions of the array to have the bands first                        
         for i, image in enumerate(data, 1):
-            image[image==0] = np.nan                                                              
-            outputName = f'{tmp_name}_B{i}.tiff'
-            output_fullpath = os.path.join(tmpDir_fullpath,outputName)
-            print(output_fullpath)                              
-            DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_Float32) # create the output image
-            DataSet.SetGeoTransform((xmin, int(pixelRes), 0, ymax, 0, -int(pixelRes))) # transform the dataset 
-            srs = osr.SpatialReference()
-            srs.ImportFromEPSG(UTM) 
-            DataSet.SetProjection(srs.ExportToWkt())                      
-            DataSet.GetRasterBand(1).WriteArray(image) 
-            DataSet = None
+            minValue = float("{:.3f}".format(np.min(image)))
+            maxValue = float("{:.3f}".format(np.max(image)))
+            if minValue == 0.0 and maxValue == 0.0: # delete the folder when the image has zero values
+                if os.path.exists(tmpDir_fullpath) and os.path.isdir(tmpDir_fullpath):
+                    shutil.rmtree(tmpDir_fullpath)
+                continue
+            else:    
+                image[image==0] = np.nan                                                              
+                outputName = f'{tmp_name}_B{i}.tiff'
+                output_fullpath = os.path.join(tmpDir_fullpath,outputName)            
+                DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_Float32) # create the output image
+                DataSet.SetGeoTransform((xmin, int(pixelRes), 0, ymax, 0, -int(pixelRes))) # transform the dataset 
+                srs = osr.SpatialReference()
+                srs.ImportFromEPSG(UTM) 
+                DataSet.SetProjection(srs.ExportToWkt())                      
+                DataSet.GetRasterBand(1).WriteArray(image) 
+                DataSet = None
 
 
 def export2TIFF(mainroot, outputDirectory, subfolder_prefix = 'out'):
@@ -64,10 +69,10 @@ def export2TIFF(mainroot, outputDirectory, subfolder_prefix = 'out'):
                 outputsubdirPath = makepath(outputsubPath)         
                 
                 if not "_CY" in subdirPath:
-                    geotiff_Generator(subdirPath, dateslist, outputsubPath, 32634)   
+                    geotiff_Generator(subdirPath, dateslist, outputsubdirPath, 32634)   
                                               
                 if "_CY" in subdirPath:
-                    geotiff_Generator(subdirPath, dateslist, outputsubPath, 32636)
+                    geotiff_Generator(subdirPath, dateslist, outputsubdirPath, 32636)
 
 if __name__ == '__main__':
     export2TIFF(mainDirectory, outputDirectory)
