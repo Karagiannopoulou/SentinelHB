@@ -154,7 +154,7 @@ def write_mosaic(out_meta, mosaic, out_trans, folder_name, outputroot, band, key
     mosaicName_fullpath = os.path.join(mosaicfolderPath, mosaicName)
     print(f'mosaic name: {mosaicName_fullpath}')
     
-    with rasterio.open(mosaicName_fullpath, "w", **out_meta) as dest: # write the built mosaic
+    with rasterio.open(mosaicName_fullpath, "w", **out_meta) as dest: # write the mosaic to geotiff
         dest.write(mosaic)       
           
 
@@ -170,7 +170,7 @@ def createMosaics (root, outputroot):
     J10 = open(dict10); J20 = open(dict20)
     dictJSON_10 = json.load(J10); dictJSON_20 = json.load(J20)  
     
-    for (key,value) in dictJSON_10.items(): # iterate through the dictionary 10, that contains the files in 10m resolution
+    for (key,value) in dictJSON_10.items(): # iterate through the dictionary 10, that contains files in 10m resolution
         for idx, subvalue in enumerate(value.values()):
             band = idx+1 # to create the band name  
             mosaicList10 = []
@@ -190,7 +190,7 @@ def createMosaics (root, outputroot):
     for (key,value) in dictJSON_20.items(): # iterate through the dictionary 10, that contains the files in 20m resolution
         for idx, subvalue in enumerate(value.values()):
             band = idx+1 # to create the band name  
-            mosaicList20 = []
+            mosaicList20 = [] # a list where the files to be mosaiced will be appended
             for ffile in subvalue:
                 src = rasterio.open(ffile)
                 mosaicList20.append(src)                    
@@ -204,9 +204,6 @@ def createMosaics (root, outputroot):
             
             elif out_meta['crs'] == 'EPSG:32636':  
                 write_mosaic(out_meta, mosaic, out_trans, Cy_foldername20, outputroot, band, key, zone=36)                           
-    
-
-    cleanFolder(outputroot, subfolder_prefix='out') # clean the folders containing the data from which the mosaics were created
 
 if __name__ == '__main__':     
     createMosaics(mainDirectory, connectingFolder)
