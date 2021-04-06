@@ -4,11 +4,9 @@ import sys, os
 # Basics of GIS
 from osgeo import gdal
 from general_functions import makepath
-
  
 # Global vars
-mainDirectory = r'.\uploadData'
-outputfolder = r'D:\DIONE\WP3\SuperResolution\uploadData'
+main_Directory = r'D:\DIONE\WP3\SuperResolution\uploadData'
 
 def split(word):
     n=2 
@@ -50,31 +48,29 @@ def cognify(filename_path, outputpath, name, blocksize=2048, nodata=None):
     print(output_COG)   
          
 
-def unstack_image(input_path, outputfolder):
+def unstack_image(input_path):
     
     # path: # as we build the file structure both in the root folder and the output folder, 
     # we isolate the folder path from the root and pasted to a variable that depicts the output folder 
     
     for folder in os.listdir(input_path):
         full_path = os.path.join(input_path, folder)
+        print(full_path)
         for subfolder in os.listdir(full_path):
             if 'drones' in subfolder:
-                subfolder_fullpath = os.path.join(full_path, subfolder)  
-                path = "\\".join(subfolder_fullpath.strip("\\").split('\\')[2:]) # this might not be needed. 
-                output_path = os.path.join(outputfolder,path)
+                subfolder_fullpath = os.path.join(full_path, subfolder)
+                print(subfolder_fullpath)
                 for ffile in os.listdir(subfolder_fullpath):
                     file_name = os.fsdecode(ffile) # decode file system
                     if file_name.endswith('.tif'):
                         filename_path = os.path.join(subfolder_fullpath, file_name)
                         name = os.path.splitext(os.path.basename(filename_path))[0]
-                        tileFolder_Name = os.path.join(output_path,name)
+                        tileFolder_Name = os.path.join(subfolder_fullpath,name)
                         tile_folder = makepath(tileFolder_Name)
                         create_single_band_image_drones(filename_path,tile_folder)
             
             if 'Sentinel2' in subfolder:
-                subfolder_fullpath = os.path.join(full_path, subfolder)  
-                path = "\\".join(subfolder_fullpath.strip("\\").split('\\')[2:]) # this might not be needed. 
-                output_path = os.path.join(outputfolder,path)           
+                subfolder_fullpath = os.path.join(full_path, subfolder)         
                 for ffile in os.listdir(subfolder_fullpath):
                     file_name = os.fsdecode(ffile) # decode file system
                     if file_name.endswith('.tif'):
@@ -84,7 +80,7 @@ def unstack_image(input_path, outputfolder):
                         rgbName = name.split("_")[1] # take the rgb of the image
                         rgbBand_list = split(rgbName) # split the part of the name showing the bands e.g. 567
                         if (len(rgbName)%2)==1 and rgbName in filename_path:
-                            tileFolder_Name = os.path.join(output_path,img_date)
+                            tileFolder_Name = os.path.join(subfolder_fullpath,img_date)
                             tile_folder = makepath(tileFolder_Name)
                             create_single_band_image_Sentinel(filename_path,rgbBand_list,tile_folder)
                          
@@ -118,6 +114,6 @@ def convert_images2COG(input_path):
 
 
 if __name__ == '__main__':
-    unstack_image(mainDirectory, outputfolder)
-    convert_images2COG(outputfolder)
+    unstack_image(main_Directory)
+    convert_images2COG(main_Directory)
     
