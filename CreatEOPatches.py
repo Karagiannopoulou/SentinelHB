@@ -6,7 +6,6 @@ import os
 # Data visualisation/Datetime
 import numpy as np
 import datetime
-import time
 
 # Basics of GIS
 import geopandas as gpd
@@ -20,14 +19,9 @@ from sentinelhub import *
 # import custom scripts
 from general_functions import makepath
 
-start_time = time.time()
 
-# Define local paths 
-path10  = r'.\output10'
-path20  = r'.\output20'
-logsFolder = r'.\logsFolder'
-# Load wkt with the AOI
-geospatialFolder = r'bbox'
+# Load folders
+geospatialFolder = r'.\downloadData\bbox'
 
 # Credentials and authorisation     
 INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
