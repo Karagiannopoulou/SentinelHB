@@ -13,18 +13,18 @@ from rasterio.merge import merge
 
 # Custom scripts
 # from createMultibands import single2multi
-from general_functions import makepath, cleanFolder
+from general_functions import makepath
 
 # Global variables
-mainDirectory = r'.\downloadData'
+root = r'.'
 connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData'
 
-def getDates(mainroot, subfolder_prefix='out'):
+def getDates(input_folder, subfolder_prefix='out'):
     dateslist = []
     
-    for dir in os.listdir(mainroot):    
+    for dir in os.listdir(input_folder):    
         if dir.startswith(subfolder_prefix):
-            innerpath = os.path.join(mainroot, dir)
+            innerpath = os.path.join(input_folder, dir)
             for innerFolder in os.listdir(innerpath):
                 eopatchFolder = os.path.join(innerpath, innerFolder)
                 for deepFolder in os.listdir(eopatchFolder):
@@ -35,19 +35,18 @@ def getDates(mainroot, subfolder_prefix='out'):
                          
     return dateslist
     
-def getSingleDates(mainroot, subfolder_prefix='out'): 
+def getSingleDates(input_folder, subfolder_prefix='out'): 
     
-    dateslists = getDates(connectingFolder) 
-    
+    dateslists = getDates(input_folder) 
     counter = collections.Counter(dateslists);  # it's a list not a dictionary to take the keys with the
     # frequency of each single date
-    dataDir10 = {}; dataDir20 = {} 
+    dataDict10 = {}; dataDict20 = {} 
     
     for sensingTime in counter:    
         tmpList10 = []; tmpList20 = []         
-        for dir in os.listdir(mainroot):
+        for dir in os.listdir(input_folder):
             if dir.startswith(subfolder_prefix):           
-                dirPath = os.path.join(mainroot, dir)
+                dirPath = os.path.join(input_folder, dir)
                 for folder in os.listdir(dirPath):
                     folderPath = os.path.join(dirPath, folder)
         
@@ -60,7 +59,7 @@ def getSingleDates(mainroot, subfolder_prefix='out'):
                                     tmpList10.append(filenamePath)
                                     tmpDic_10 = {}
                                     tmpDic_10[sensingTime] = tmpList10
-                                    dataDir10.update(tmpDic_10)
+                                    dataDict10.update(tmpDic_10)
                                     
                     elif 'eopatch_20' in folderPath:
                         for subfolder in os.listdir(folderPath):
@@ -71,24 +70,25 @@ def getSingleDates(mainroot, subfolder_prefix='out'):
                                     tmpList20.append(filenamePath)
                                     tmpDic_20 = {};
                                     tmpDic_20[sensingTime] = tmpList20
-                                    dataDir20.update(tmpDic_20) 
+                                    dataDict20.update(tmpDic_20) 
 
-    return [dataDir10, dataDir20]
+    return dataDict10, dataDict20
 
 
-def getDictionary(mainroot):    
+def getDictionary(root, input_folder):    
     # ini input and output variables     
-    dictionaries = getSingleDates(connectingFolder)
-    dict10 = dictionaries[0]
-    dict20 = dictionaries[1] 
+    dict10 , dict20 = getSingleDates(input_folder)
 
     bandsList10 = ['B1', 'B2', 'B3', 'B4'] ; bandsList20 = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
     tmpList10 = []; tmpList20 = [] 
     
     # remove the older dictionaries in order to write the new ones    
-    for ffile in os.listdir(mainroot):
+    for ffile in os.listdir(root):
         if ffile.endswith('.json'):
             os.remove(ffile)
+            print("json files deleted")
+        else:
+            continue
     
     for values in dict10.values():
         tmp = {}
@@ -133,7 +133,7 @@ def getDictionary(mainroot):
     
     return mainDict10json_Name, mainDict20json_Name
     
-def write_mosaic(out_meta, mosaic, out_trans, folder_name, outputroot, band, key, zone):
+def write_mosaic(out_meta, mosaic, out_trans, folder_name, output_folder, band, key, zone):
 
     # write the metadata of the mosaic
     out_meta.update({
@@ -145,26 +145,25 @@ def write_mosaic(out_meta, mosaic, out_trans, folder_name, outputroot, band, key
     }) 
        
     tmpname = 'mosaic_{}'.format(folder_name) # create the central folder that will contain all the mosaics
-    tmppath = os.path.join(outputroot, tmpname)
+    tmppath = os.path.join(output_folder, tmpname)
     tmppathFinal = makepath(tmppath)
     
     mosaicfolder = os.path.join(tmppathFinal,key) # create the single folder contain the mosaic bands per single sensing date
     mosaicfolderPath = makepath(mosaicfolder) 
     mosaicName = 'S2_mosaic_{}_B{}.tiff'.format(key, band) # create the name of the mosaic image
     mosaicName_fullpath = os.path.join(mosaicfolderPath, mosaicName)
-    print(f'mosaic name: {mosaicName_fullpath}')
     
     with rasterio.open(mosaicName_fullpath, "w", **out_meta) as dest: # write the mosaic to geotiff
         dest.write(mosaic)       
           
+    print(mosaicName_fullpath)    
 
-
-def createMosaics (root, outputroot):
+def createMosaics (output_folder):
     
     Lith_foldername10 = 'Lith_output10'; Lith_foldername20 = 'Lith_output20' 
     Cy_foldername10 = 'CY_output10'; Cy_foldername20 = 'CY_output20' 
     
-    dict10Name, dict20Name = getDictionary(mainDirectory) 
+    dict10Name, dict20Name = getDictionary(root, connectingFolder) 
     
     dict10 = os.path.join(root, dict10Name); dict20 = os.path.join(root, dict20Name)   
     J10 = open(dict10); J20 = open(dict20)
@@ -182,10 +181,10 @@ def createMosaics (root, outputroot):
             out_meta = src.meta.copy()
             
             if out_meta['crs'] == 'EPSG:32634': # mosaic the data of Lithuania
-                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername10, outputroot, band, key, zone=34)           
+                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername10, output_folder, band, key, zone=34)           
                 
             elif out_meta['crs'] == 'EPSG:32636': # mosaic the data of Cyprus 
-                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername10, outputroot, band, key, zone=36)      
+                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername10, output_folder, band, key, zone=36)      
     
     for (key,value) in dictJSON_20.items(): # iterate through the dictionary 10, that contains the files in 20m resolution
         for idx, subvalue in enumerate(value.values()):
@@ -199,11 +198,11 @@ def createMosaics (root, outputroot):
             out_meta = src.meta.copy()
             
             if out_meta['crs'] == 'EPSG:32634':
-                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername20, outputroot, band, key, zone=34) 
+                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername20, output_folder, band, key, zone=34) 
                 
             
             elif out_meta['crs'] == 'EPSG:32636':  
-                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername20, outputroot, band, key, zone=36)                           
+                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername20, output_folder, band, key, zone=36)                           
 
-if __name__ == '__main__':     
-    createMosaics(mainDirectory, connectingFolder)
+if __name__ == '__main__': 
+    createMosaics(connectingFolder)
