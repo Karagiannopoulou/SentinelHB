@@ -13,7 +13,7 @@ from eolearn.io import *
 from sentinelhub import * 
 
 # Load wkt with the AOI
-geospatialFolder = r'bbox'
+geospatialFolder = r'.\downloadData\bbox'
 
 # Variables for the downloadEO function
 def createGeoJson(geospatialFolder, filename_Lithuania, filename_Cyprus):
@@ -35,7 +35,6 @@ def createGeoJson(geospatialFolder, filename_Lithuania, filename_Cyprus):
     country_shape_Cyprus = country_Cyprus.geometry.values[-1]
     
     return [country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus]
-
 
 
 def patchesGenerator(country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus, patches = 24000):   
