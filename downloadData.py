@@ -22,9 +22,9 @@ logsFolder = r'.\downloadData\logsFolder'
 geospatialFolder = r'.\downloadData\bbox'
 
 # Credentials and authorisation     
-INSTANCE_ID   = ''
-CLIENT_ID     = ''
-CLIENT_SECRET = ''
+INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
+CLIENT_ID     = '629e3c27-b93e-4990-83d5-106707ffff1b'
+CLIENT_SECRET = 's}lwWt}EUC6Irw0D7H[Cf5Q[G[]QT51aAg6|8W#%'
 
 config = SHConfig()
 try:
@@ -149,9 +149,9 @@ def dynamic_startDate(root=mainroot):
             json20 = open(jsonsPath20)
             dict20=json.load(json20)
     
-    for (keys10,keys20) in zip(dict10.keys(), dict20.keys()):
-        date_dts10 = datetime.datetime.strptime(keys10, '%Y%m%dT%H%M%S')
-        date_dts20 = datetime.datetime.strptime(keys20, '%Y%m%dT%H%M%S')
+    for (key10,key20) in zip(dict10.keys(), dict20.keys()):
+        date_dts10 = datetime.datetime.strptime(key10, '%Y%m%dT%H%M%S')
+        date_dts20 = datetime.datetime.strptime(key20, '%Y%m%dT%H%M%S')
         list_with_dates_10.append(date_dts10); list_with_dates_20.append(date_dts20)
     
     # calculate the latest datetime from a list of the images days 
@@ -192,9 +192,7 @@ def downloadEO(resolution, start_date, maxcc=0.1):
     cleanFolder(mainroot, subfolder_prefix='logs')
     
     # Define the start date and end date
-        # start time
-    
-    
+        # start time    
     start_datetime = start_date
         # end date
     now = datetime.datetime.now()
@@ -208,7 +206,7 @@ def downloadEO(resolution, start_date, maxcc=0.1):
         bands_feature=(FeatureType.DATA, 'L2A_data'),
         resolution=resolution[0],
         maxcc=maxcc,
-        time_difference=datetime.timedelta(hours=2),
+        time_difference=datetime.timedelta(hours=6),
         config=config,
         max_threads=5
     )
@@ -219,7 +217,7 @@ def downloadEO(resolution, start_date, maxcc=0.1):
         bands_feature=(FeatureType.DATA, 'L2A_data'),
         resolution=resolution[1],
         maxcc=maxcc,
-        time_difference=datetime.timedelta(hours=2),
+        time_difference=datetime.timedelta(hours=6),
         config=config,
         max_threads=5
     )
