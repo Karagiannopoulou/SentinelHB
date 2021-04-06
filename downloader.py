@@ -21,7 +21,7 @@ start_time = time.time()
 
 # define the resolution of the spectral bands
 resolution = [10,20]
-mainDirectory = r'.'
+root = r'.'
 outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
 
 
@@ -33,13 +33,13 @@ def downloader():
     
     # convert to geotiff
     print('Starting to export the geotiffs .........')
-    export2TIFF(mainDirectory, outputDirectory)
+    export2TIFF(root, outputDirectory)
     print('exporting end!')
     
     # create mosaics and multiband stack mosaics
     print('Starting creating mosaics.........')
-    getDictionary(mainDirectory)
-    createMosaics(mainDirectory, outputDirectory)
+    getDictionary(root, outputDirectory)
+    createMosaics(outputDirectory)
     cleanFolder(outputDirectory, subfolder_prefix='out') # clean the folders containing the data from which the mosaics were created
     single2multi(outputDirectory)
     print('multistack mosaics are ready')
@@ -47,7 +47,7 @@ def downloader():
 
 def main():
     downloader()
-    schedule.every(2).days.do(downloader)
+    schedule.every(5).days.do(downloader) # revisit time of Sentinel-2
     
     while True:
         schedule.run_pending()
