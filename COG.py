@@ -65,7 +65,9 @@ def unstack_image(input_path):
                     if file_name.endswith('.tif'):
                         filename_path = os.path.join(subfolder_fullpath, file_name)
                         name = os.path.splitext(os.path.basename(filename_path))[0]
-                        tileFolder_Name = os.path.join(subfolder_fullpath,name)
+                        img_date = name.split("_")[-1] 
+                        print(img_date)
+                        tileFolder_Name = os.path.join(subfolder_fullpath,img_date)
                         tile_folder = makepath(tileFolder_Name)
                         create_single_band_image_drones(filename_path,tile_folder)
             
@@ -97,16 +99,18 @@ def convert_images2COG(input_path):
         folder_path = os.path.join(input_path, folder)
         for subfolder in os.listdir(folder_path):
             subfolder_path = os.path.join(folder_path,subfolder)
+            print(subfolder_path)
             for innerfolder in os.listdir(subfolder_path):
                 innerfolderPath = os.path.join(subfolder_path, innerfolder)
-                for ffile in os.listdir(innerfolderPath):
-                    filename_path = os.path.join(innerfolderPath, ffile)
-                    name = os.path.splitext(os.path.basename(filename_path))[0]
-                    removeFiles_list.append(filename_path)
-                    if not filename_path.endswith('_cog.tiff'):
-                        cognify(filename_path, innerfolderPath, name, blocksize=2048, nodata=None)  
-                    else:
-                        break
+                if os.path.isdir(innerfolderPath): 
+                    for ffile in os.listdir(innerfolderPath):
+                        filename_path = os.path.join(innerfolderPath, ffile)
+                        name = os.path.splitext(os.path.basename(filename_path))[0]
+                        removeFiles_list.append(filename_path)
+                        if not filename_path.endswith('_cog.tiff'):
+                            cognify(filename_path, innerfolderPath, name, blocksize=2048, nodata=None)  
+                        else:
+                            break
 
     for ffile in removeFiles_list:
         os.remove(ffile)                             
