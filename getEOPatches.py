@@ -13,29 +13,28 @@ from eolearn.io import *
 from sentinelhub import * 
 
 # Load wkt with the AOI
-geospatialFolder = r'.\downloadData\bbox'
+geospatialFolder = r'.\bbox'
 
 # Variables for the downloadEO function
-def createGeoJson(geospatialFolder, filename_Lithuania, filename_Cyprus):
+def createGeoJson(input_folder, filename_Lithuania, filename_Cyprus):
     # AOI: define the json file with the AOI's boundaries
     # country: read it as geopandas
     # country's_crs: transform projection to UTM zone
     # country's shape: get the shape in polygon format    
     
-    AOI_Lithuania = os.path.join(geospatialFolder, filename_Lithuania)    
+    AOI_Lithuania = os.path.join(input_folder, filename_Lithuania)    
     country_Lithuania = gpd.read_file(AOI_Lithuania)
     country_crs_Lithuania = CRS.UTM_34N    
     country_Lithuania = country_Lithuania.to_crs(crs={'init': CRS.ogc_string(country_crs_Lithuania)})
     country_shape_Lithuania = country_Lithuania.geometry.values[-1]
     
-    AOI_Cyprus = os.path.join(geospatialFolder, filename_Cyprus)    
+    AOI_Cyprus = os.path.join(input_folder, filename_Cyprus)    
     country_Cyprus = gpd.read_file(AOI_Cyprus)
     country_crs_Cyprus = CRS.UTM_36N   
     country_Cyprus = country_Cyprus.to_crs(crs={'init': CRS.ogc_string(country_crs_Cyprus)})
     country_shape_Cyprus = country_Cyprus.geometry.values[-1]
     
-    return [country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus]
-
+    return country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus
 
 def patchesGenerator(country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus, patches = 24000):   
      
@@ -56,14 +55,13 @@ def patchesGenerator(country_Lithuania, country_shape_Lithuania, country_Cyprus,
     info_list_Cyprus = np.array(bbox_splitter_Cyprus.get_info_list())    
     idxs = [info['index'] for info in info_list_Cyprus] 
     
-    return [bbox_list_Lithuania, info_list_Lithuania, bbox_list_Cyprus, info_list_Cyprus]
+    return bbox_list_Lithuania, info_list_Lithuania, bbox_list_Cyprus, info_list_Cyprus
+
   
-  
-  
-def splitpatches_Lithuania(country_Lithuania, bbox_list_Lithuania, info_list_Lithuania, outputname='final_tiles_Lith'):  
+def splitpatches_Lithuania(input_folder, country_Lithuania, bbox_list_Lithuania, info_list_Lithuania, outputname='final_tiles_Lith'):  
     
     shapefile_name_Lith = f'{outputname}.gpkg'
-    shapefile_fullpath_Lith = os.path.join(geospatialFolder,shapefile_name_Lith)
+    shapefile_fullpath_Lith = os.path.join(input_folder,shapefile_name_Lith)
     updated_bbox_list_Lithuania = np.array([]); updated_info_list_Lithuania = np.array([])
     unwantedTiles_Lithuania = [0,1,2,3,4,5,6,12,18,24,30]
     
@@ -127,10 +125,10 @@ def splitpatches_Lithuania(country_Lithuania, bbox_list_Lithuania, info_list_Lit
 
     return [idxs_Lithuania, updated_bbox_list_Lithuania]
 
-def splitpatches_Cyprus(country_Cyprus, bbox_list_Cyprus, info_list_Cyprus, outputname='final_tiles_Cy'): 
+def splitpatches_Cyprus(input_folder, country_Cyprus, bbox_list_Cyprus, info_list_Cyprus, outputname='final_tiles_Cy'): 
     
     shapefile_name_Cy = f'{outputname}.gpkg'
-    shapefile_fullpath_Cy = os.path.join(geospatialFolder,shapefile_name_Cy)  
+    shapefile_fullpath_Cy = os.path.join(input_folder, shapefile_name_Cy)  
     
     updated_bbox_list_Cyprus = np.array([]); updated_info_list_Cyprus = np.array([]) 
     wantedTiles_Cyprus = [2, 3, 4, 8, 9, 10, 11, 15, 16, 17, 21, 22, 28]    
@@ -196,10 +194,10 @@ def splitpatches_Cyprus(country_Cyprus, bbox_list_Cyprus, info_list_Cyprus, outp
     return [idxs_Cyprus, updated_bbox_list_Cyprus]
 
 if __name__ == '__main__':
-    shape = createGeoJson(geospatialFolder, 'LithAOI.json', 'CyAOI.json')
-    patchesList = patchesGenerator(shape[0],shape[1],shape[2],shape[3])
-    splitpatches_Lithuania(shape[0], patchesList[0], patchesList[1])
-    splitpatches_Cyprus(shape[2], patchesList[2], patchesList[3])
+    country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus = createGeoJson(geospatialFolder, 'LithAOI.json', 'CyAOI.json')
+    bbox_list_Lithuania, info_list_Lithuania, bbox_list_Cyprus, info_list_Cyprus = patchesGenerator(country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus)
+    splitpatches_Lithuania(geospatialFolder, country_Lithuania, bbox_list_Lithuania, info_list_Lithuania)
+    splitpatches_Cyprus(geospatialFolder, country_Cyprus, bbox_list_Cyprus, info_list_Cyprus)
     
     
     
