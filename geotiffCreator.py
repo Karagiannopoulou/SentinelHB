@@ -12,8 +12,8 @@ import numpy as np
 from general_functions import makepath
 
 # Global variables
-mainDirectory = r'.\downloadData'
-outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
+mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
+outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
 
 def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff'):
     # subdirPath: it is the eopatches folder path e.g. .\downloadData\output10\eopatch_10_0
@@ -38,11 +38,10 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
                 if os.path.exists(tmpDir_fullpath) and os.path.isdir(tmpDir_fullpath):
                     shutil.rmtree(tmpDir_fullpath)
                 continue
-            else:    
-                image[image==0] = np.nan                                                              
+            else:                                                                
                 outputName = f'{tmp_name}_B{i}.tiff'
                 output_fullpath = os.path.join(tmpDir_fullpath,outputName)            
-                DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_Float32) # create the output image
+                DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_Byte) # create 8bit output image
                 DataSet.SetGeoTransform((xmin, int(pixelRes), 0, ymax, 0, -int(pixelRes))) # transform the dataset 
                 srs = osr.SpatialReference()
                 srs.ImportFromEPSG(UTM) 
@@ -51,16 +50,16 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
                 DataSet = None
 
 
-def export2TIFF(mainroot, outputDirectory, subfolder_prefix = 'out'):
+def export2TIFF(input_folder, outputDirectory, subfolder_prefix = 'out'):
     # input path: the main directory where the eopatches are stored
     # output directory: where the geotiffs will be exported 
     # subfolder prefix: a prefix such as the word 'out' that indicates the specific folder where the eopatches are stored
     # format: by default it was set to export the images in geotiff
     
     dateslist = []
-    for dir in os.listdir(mainroot):
+    for dir in os.listdir(input_folder):
         if dir.startswith(subfolder_prefix):
-            dirPath = os.path.join(mainroot, dir)
+            dirPath = os.path.join(input_folder, dir)
             outputPath = os.path.join(outputDirectory, dir)
             outputdirPath = makepath(outputPath)                            
             for subdir in os.listdir(dirPath):
