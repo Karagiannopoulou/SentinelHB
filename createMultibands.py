@@ -3,7 +3,7 @@ import json
 from osgeo import gdal
 
 root = r'.'
-connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData'
+connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
 
 
 def getting_newdates(root):
