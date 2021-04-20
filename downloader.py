@@ -22,13 +22,15 @@ start_time = time.time()
 # define the resolution of the spectral bands
 resolution = [10,20]
 root = r'.'
-outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
+# outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
+outputDirectory = 'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
 
 
 def downloader():
     # Download Sentinel-2 data
     print('Initiating the process .........')
-    start_datetime = starting_time()
+    start_datetime = starting_time(root)
+    print(start_datetime)
     downloadEO(resolution, start_datetime)
     
     # convert to geotiff
