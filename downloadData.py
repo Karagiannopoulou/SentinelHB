@@ -12,16 +12,19 @@ from eolearn.io import *
 from sentinelhub import * 
 
 # import custom scripts
-from secrets import INSTANCE_ID, CLIENT_ID, CLIENT_SECRET
 from general_functions import makepath, cleanFolder
 from getEOPatches import createGeoJson, patchesGenerator, splitpatches_Lithuania, splitpatches_Cyprus
 
 # Define local paths 
-root = r'.'
-ini_folder = r'D:\DIONE\WP3\SuperResolution\downloadData'
-logsFolder = r'.\logsFolder'
+mainroot = r'.\downloadData'
+logsFolder = r'.\downloadData\logsFolder'
 # Load wkt with the AOI
-geospatialFolder = r'.\bbox'
+geospatialFolder = r'.\downloadData\bbox'
+
+# Credentials and authorisation     
+INSTANCE_ID   = ''
+CLIENT_ID     = ''
+CLIENT_SECRET = ''
 
 config = SHConfig()
 try:
@@ -37,8 +40,8 @@ except:
 resolution = [10,20]
 
 
-def downloadEO_Lithuania(input_folder, input_task10, input_task20, updatedPatches_Lth, time_interval):
-        path10_Lth = os.path.join(input_folder, 'output10'); path20_Lth = os.path.join(input_folder, 'output20')
+def downloadEO_Lithuania(mainroot, input_task10, input_task20, updatedPatches_Lth, time_interval):
+        path10_Lth = os.path.join(mainroot, 'output10'); path20_Lth = os.path.join(mainroot, 'output20')
         path10_Lithuania = makepath(path10_Lth); path20_Lithuania = makepath(path20_Lth)
         
         idxs = updatedPatches_Lth[0]; bbox_list = updatedPatches_Lth[1] 
@@ -57,6 +60,7 @@ def downloadEO_Lithuania(input_folder, input_task10, input_task20, updatedPatche
         )
         
         execution_args10 = []; execution_args20 = []
+    
     
         for idx, bbox in enumerate(bbox_list[idxs]):
             print(f'Processing Lithuania:{idx}')
@@ -82,9 +86,9 @@ def downloadEO_Lithuania(input_folder, input_task10, input_task20, updatedPatche
             executor20.make_report()
 
 
-def downloadEO_Cyprus(input_folder, input_task10, input_task20, updatedPatches_Cy, time_interval):
+def downloadEO_Cyprus(mainroot, input_task10, input_task20, updatedPatches_Cy, time_interval):
         
-        path10_Cy = os.path.join(input_folder, 'output10_CY'); path20_Cy = os.path.join(input_folder, 'output20_CY')
+        path10_Cy = os.path.join(mainroot, 'output10_CY'); path20_Cy = os.path.join(mainroot, 'output20_CY')
         path10_Cyprus = makepath(path10_Cy); path20_Cyprus = makepath(path20_Cy)
         
         cidxs = updatedPatches_Cy[0]; cbbox_list = updatedPatches_Cy[1]
@@ -130,7 +134,7 @@ def downloadEO_Cyprus(input_folder, input_task10, input_task20, updatedPatches_C
 
 
 
-def dynamic_startDate(root):
+def dynamic_startDate(root=mainroot):
     
     dict10 ={}; dict20={}; list_with_dates_10 = []; list_with_dates_20 = [] 
     
@@ -167,32 +171,33 @@ def dynamic_startDate(root):
     return time_start                                                                                                                   
 
 
-def starting_time(root):
+def starting_time(root=mainroot):
     
     if any(File.endswith(".json") for File in os.listdir(root)):
         starting_Date = dynamic_startDate(root)
     else:
-        starting_Date = '2020-03-01'
+        starting_Date = '01-01-2021'
     
     return starting_Date
     
 def downloadEO(resolution, start_date, maxcc=0.1):
     
     # Initialize variables 
-    country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus = createGeoJson(geospatialFolder, 'LithAOI.json', 'CyAOI.json')    
-    bbox_list_Lithuania, info_list_Lithuania, bbox_list_Cyprus, info_list_Cyprus = patchesGenerator(country_Lithuania, country_shape_Lithuania, country_Cyprus, country_shape_Cyprus) 
-    updatedPatches_Lth = splitpatches_Lithuania(geospatialFolder, country_Lithuania, bbox_list_Lithuania, info_list_Lithuania)
-    updatedPatches_Cy = splitpatches_Cyprus(geospatialFolder, country_Cyprus, bbox_list_Cyprus, info_list_Cyprus)
+    shape = createGeoJson(geospatialFolder, 'LithAOI.json', 'CyAOI.json')    
+    patchesList = patchesGenerator(shape[0],shape[1],shape[2],shape[3]) 
+    updatedPatches_Lth = splitpatches_Lithuania(shape[0], patchesList[0], patchesList[1])
+    updatedPatches_Cy = splitpatches_Cyprus(shape[2], patchesList[2], patchesList[3])
     
     # remove older log folders
-    cleanFolder(root, subfolder_prefix='logs')
+    cleanFolder(mainroot, subfolder_prefix='logs')
     
-    # Define the start date and end date   
+    # Define the start date and end date
+        # start time    
     start_datetime = start_date
-#     now = datetime.datetime.now() # activate this in automated process
-#     end_datetime = now.strftime('%Y-%m-%d') # activate this in automated process
-#     time_interval = (start_datetime, end_datetime) # activate this in automated process
-    time_interval = (start_datetime, '2020-11-01') # deactivate this in case of manual process 
+        # end date
+    now = datetime.datetime.now()
+    end_datetime = now.strftime('%Y-%m-%d')
+    time_interval = (start_datetime, end_datetime)
     
     # Define the parameters for the service request
     input_task10 = SentinelHubInputTask(
@@ -217,9 +222,9 @@ def downloadEO(resolution, start_date, maxcc=0.1):
         max_threads=5
     )
     
-    downloadEO_Lithuania(ini_folder, input_task10, input_task20, updatedPatches_Lth, time_interval)
+    downloadEO_Lithuania(mainroot, input_task10, input_task20, updatedPatches_Lth, time_interval)
     
-    downloadEO_Cyprus(ini_folder, input_task10, input_task20, updatedPatches_Cy, time_interval)
+    downloadEO_Cyprus(mainroot, input_task10, input_task20, updatedPatches_Cy, time_interval)
      
 
 
