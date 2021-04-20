@@ -18,15 +18,15 @@ from sentinelhub import *
 
 # import custom scripts
 from general_functions import makepath
-
+from secrets import INSTANCE_ID, CLIENT_ID, CLIENT_SECRET
 
 # Load folders
-geospatialFolder = r'.\downloadData\bbox'
+geospatialFolder = r'.\bbox'
 
 # Credentials and authorisation     
-INSTANCE_ID   = 'f12d5fd9-5d83-474a-a4a7-9b90adc6e27f'
-CLIENT_ID     = '629e3c27-b93e-4990-83d5-106707ffff1b'
-CLIENT_SECRET = 's}lwWt}EUC6Irw0D7H[Cf5Q[G[]QT51aAg6|8W#%'
+INSTANCE_ID = INSTANCE_ID
+CLIENT_ID = CLIENT_ID
+CLIENT_SECRET = CLIENT_SECRET
 
 config = SHConfig()
 try:
@@ -38,13 +38,9 @@ except:
     if config.sh_client_id == '' & config.sh_client_secret == '' & config.instance_id == '': 
         print("Warning! To use Sentinel Hub services, please provide the credentials (client ID and client secret).")
 
-
-
 def createGeoJson(geospatialFolder, filename):
     
-    AOI = os.path.join(geospatialFolder, filename)
-    print(AOI)
-   
+    AOI = os.path.join(geospatialFolder, filename)   
     # Load boundaries of the AOI in GeoJson format
     country = gpd.read_file(AOI) # Lithuania tile
 
@@ -54,15 +50,12 @@ def createGeoJson(geospatialFolder, filename):
     
     # Get the country's shape in polygon format
     country_shape = country.geometry.values[-1]
-    return [country, country_shape]
+    return country, country_shape
 
-def patchesGenerator(outputname, patches = 24000):  
-    
-    shape = createGeoJson(geospatialFolder, 'LithAOI.json') 
-    country = shape[0] ; country_shape = shape[1]
-    
+def patchesGenerator(input_folder, outputname, patches = 24000):  
+    country, country_shape = createGeoJson(input_folder, 'LithAOI.json')     
     shapefile_name = f'{outputname}.gpkg'
-    shapefile_fullpath = os.path.join(geospatialFolder,shapefile_name)  
+    shapefile_fullpath = os.path.join(input_folder,shapefile_name)  
     
     # Create the splitter to obtain a list of bboxes
     bbox_splitter = UtmZoneSplitter([country_shape], country.crs, patches) # 35 patches per S2 image tile 
@@ -79,8 +72,8 @@ def patchesGenerator(outputname, patches = 24000):
 
     gdf.to_file(shapefile_fullpath, driver='GPKG')
     
-    return [idxs, bbox_list]
+    return idxs, bbox_list
 
 
 if __name__ == '__main__':
-    patches = patchesGenerator('tile_Lith')
+    patches = patchesGenerator(geospatialFolder, 'tile_Lith')
