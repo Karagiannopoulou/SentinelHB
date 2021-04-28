@@ -1,5 +1,5 @@
 import os, sys
-from secrets import aws_access_key_id, aws_secret_access_key, bucket
+from secrets import aws_access_key_id, aws_secret_access_key, dione_s3_bucket
 import boto3
 
 main_Directory = r'D:\DIONE\WP3\SuperResolution\uploadData'
@@ -16,7 +16,7 @@ def upload_to_s3(local_imagefile, keyname):
         aws_secret_access_key = aws_secret_access_key
         )
     
-    s3.put_object(Bucket=bucket,
+    s3.put_object(Bucket=dione_s3_bucket,
               Key=key_filename,
               Body=imageFile)
     
@@ -24,7 +24,7 @@ def upload_to_s3(local_imagefile, keyname):
     
     
 
-def ingestion_to_S3(input_path):
+def ingest_to_S3(input_path):
     
     for folder in os.listdir(input_path):
         full_path = os.path.join(input_path, folder)
@@ -45,8 +45,5 @@ def ingestion_to_S3(input_path):
             
 
 
-
-
-
 if __name__ == '__main__':
-    ingestion_to_S3(main_Directory)
+    ingest_to_S3(main_Directory)
