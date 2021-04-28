@@ -194,7 +194,7 @@ def createMosaics (output_folder):
                 src = rasterio.open(ffile)
                 mosaicList20.append(src)                    
 
-            mosaic, out_trans = merge(mosaicList20)
+            mosaic, out_trans = merge(mosaicList20, nodata=0, method='last')
             out_meta = src.meta.copy()
             
             if out_meta['crs'] == 'EPSG:32634':
