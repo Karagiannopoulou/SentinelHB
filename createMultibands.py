@@ -1,6 +1,7 @@
 import os, sys
 import json
-from osgeo import gdal
+from osgeo import gdal, osr
+import numpy as np
 
 root = r'.'
 connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
@@ -37,9 +38,9 @@ def multiband_stack_geotiff(bandList, folderPath, rgb_name, VRTname):
     outTiffName = f'S2_{rgb_name}_mosaic_{VRTname}.tiff'
     outTIFF = os.path.join(mosaicfolder, outTiffName)
     outds = gdal.BuildVRT(outVRT, tifs, separate=True)
-    outds = gdal.Translate(outTIFF, outds)
-    os.remove(outVRT)
-
+    gdaltranslate_options = f'-co PHOTOMETRIC=RGB'
+    outds = gdal.Translate(outTIFF, outds, options=gdaltranslate_options)
+    print(outTIFF) 
 
 def single2multi(outputroot):
     list_newDates10 , list_newDates20 = getting_newdates(root)
