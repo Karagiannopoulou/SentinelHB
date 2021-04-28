@@ -2,12 +2,7 @@
 import os,sys
 
 # time libraries
-import time, schedule
-
-# Sentinel Hub libs
-from eolearn.core import *
-from eolearn.io import *
-from sentinelhub import * 
+import time, schedule  
 
 # Custom libs
 from downloadData import starting_time, downloadEO
@@ -22,20 +17,20 @@ start_time = time.time()
 # define the resolution of the spectral bands
 resolution = [10,20]
 root = r'.'
-# outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
-outputDirectory = 'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
+mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
+outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
 
 
 def downloader():
-    # Download Sentinel-2 data
-    print('Initiating the process .........')
-    start_datetime = starting_time(root)
-    print(start_datetime)
-    downloadEO(resolution, start_datetime)
+#     Download Sentinel-2 data
+#     print('Initiating the process .........')
+#     start_datetime = starting_time(root)
+#     print(start_datetime)
+#     downloadEO(resolution, start_datetime)
     
     # convert to geotiff
     print('Starting to export the geotiffs .........')
-    export2TIFF(root, outputDirectory)
+    export2TIFF(mainDirectory, outputDirectory)
     print('exporting end!')
     
     # create mosaics and multiband stack mosaics
