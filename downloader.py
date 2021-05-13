@@ -11,22 +11,18 @@ from mosaics import getDictionary, createMosaics
 from general_functions import cleanFolder
 from createMultibands import single2multi
 
-# start counting processing time
-start_time = time.time()
-
 # define the resolution of the spectral bands
 resolution = [10,20]
 root = r'.'
 mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
 outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
 
-
 def downloader():
 #     Download Sentinel-2 data
-#     print('Initiating the process .........')
-#     start_datetime = starting_time(root)
-#     print(start_datetime)
-#     downloadEO(resolution, start_datetime)
+    print('Initiating the process .........')
+    start_datetime = starting_time(root)
+    print(start_datetime)
+    downloadEO(resolution, start_datetime)
     
     # convert to geotiff
     print('Starting to export the geotiffs .........')
@@ -54,7 +50,5 @@ def main():
 if __name__ == '__main__':
     main()
     
-# end counting processing time
-elapsed_time = time.time() - start_time
-print (time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))    
+ 
 
