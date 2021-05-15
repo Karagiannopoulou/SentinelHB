@@ -1,10 +1,10 @@
 import os, sys
-import json
+import json, numpy as np
 from osgeo import gdal, osr
-import numpy as np
+from PIL import Image
 
 root = r'.'
-connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
+connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData_geotiff2'
 
 
 def getting_newdates(root):
@@ -28,19 +28,20 @@ def getting_newdates(root):
 
 
 
-def multiband_stack_geotiff(bandList, folderPath, rgb_name, VRTname):
+def multiband_stack_geotiff(bandList, folderPath, rgb_name, sensing_time):
     tifs = bandList
-    mosaicfolder = os.path.join(folderPath,'multiband')
-    if not os.path.exists(mosaicfolder): 
-        os.makedirs(mosaicfolder)
-    outVRTName = f'VRT_{rgb_name}_{VRTname}.vrt'
-    outVRT = os.path.join(mosaicfolder, outVRTName)
-    outTiffName = f'S2_{rgb_name}_mosaic_{VRTname}.tiff'
-    outTIFF = os.path.join(mosaicfolder, outTiffName)
+    multiband_folder = os.path.join(folderPath,'multiband')
+    if not os.path.exists(multiband_folder): 
+        os.makedirs(multiband_folder)
+    outVRTName = f'VRT_{rgb_name}_{sensing_time}.vrt'
+    outVRT = os.path.join(multiband_folder, outVRTName)
+    outTiffName = f'S2_{rgb_name}_mosaic_{sensing_time}.tiff'
+    outTIFF = os.path.join(multiband_folder, outTiffName)
+    output_8bitname = f'S2_{rgb_name}_mosaic_{sensing_time}_8bit.tiff'
+    output_8bit_TIFF = os.path.join(multiband_folder, output_8bitname)
     outds = gdal.BuildVRT(outVRT, tifs, separate=True)
-    gdaltranslate_options = f'-co PHOTOMETRIC=RGB'
-    outds = gdal.Translate(outTIFF, outds, options=gdaltranslate_options)
-    print(outTIFF) 
+    outds = gdal.Translate(outTIFF, outds)    
+    gdal.RGBFile2PCTFile(outTIFF, output_8bit_TIFF) # convert RGB to 8-bit pseudo palleted image inserted to DNN   
 
 def single2multi(outputroot):
     list_newDates10 , list_newDates20 = getting_newdates(root)
@@ -51,7 +52,7 @@ def single2multi(outputroot):
             for folder in os.listdir(innerpath):
                 if folder in list_newDates10: 
                     folderPath = os.path.join(innerpath, folder)
-                    VRTname = os.path.basename(folderPath)
+                    sensing_time = os.path.basename(folderPath)
                     bandList10 = []
                     for i, ffile in enumerate(os.listdir(folderPath)):
                         band = i+1
@@ -62,13 +63,13 @@ def single2multi(outputroot):
                         if band==3 and str(band) in ffile:
                             bandList10.append(os.path.join(folderPath,ffile))  
                     
-                    multiband_stack_geotiff(bandList10, folderPath, VRTname, '234')
+                    multiband_stack_geotiff(bandList10, folderPath, sensing_time, '234')
                     
         elif innerpath.endswith('output20'):
             for folder in os.listdir(innerpath): 
                 if folder in list_newDates20: 
                     folderPath = os.path.join(innerpath, folder)
-                    VRTname = os.path.basename(folderPath)
+                    sensing_time = os.path.basename(folderPath)
                     bandList20_567 = []; bandList20_8a1112 = []
                     for i, ffile in enumerate(os.listdir(folderPath)):
                         band = i+1
@@ -86,10 +87,10 @@ def single2multi(outputroot):
                             bandList20_8a1112.append(os.path.join(folderPath,ffile))
                 
                 # RGB for the 567 spectral bands
-                multiband_stack_geotiff(bandList20_567, folderPath, VRTname, '567')
+                multiband_stack_geotiff(bandList20_567, folderPath, sensing_time, '567')
                  
                 # RGB for the 8a1112 spectral bands
-                multiband_stack_geotiff(bandList20_8a1112, folderPath, VRTname, '8a1112')
+                multiband_stack_geotiff(bandList20_8a1112, folderPath, sensing_time, '8a1112')
                             
 
 
