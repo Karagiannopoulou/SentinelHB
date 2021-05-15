@@ -37,21 +37,10 @@ def data_conversion_to_ingest(key_name, collection_id):
     print("tile path: {}".format(tile_path))
     sensing_time = os.path.join(*tile_path.split("/")[-1:]).replace("\\","/")
     sensingTime_reformatted = datetime.strptime(sensing_time, "%Y%m%dT%H%M%S").strftime('%Y-%m-%dT%H:%M:%S') # convert datetime in format that is needed to be ingested in tile collection of SH
-    im = im_read(dione_s3_bucket, key_name)
-    with rio.open(im) as src:
-        crs = src.crs
-        print(crs)
-        crs_urn = f'urn:ogc:def:crs:EPSG::{str(crs).split(":")[-1]}' # transform to urn format
-        bounds = src.bounds
-    geom = box(*bounds)
-    wkt = geom.wkt
-    geom = ogr.CreateGeometryFromWkt(wkt)
-    cover_geometry = json.loads(geom.ExportToJson())
      
     tile = {
-        'path': tile_path,
-        'sensingTime': sensingTime_reformatted,
-        'coverGeometry': cover_geometry
+        'path': f'{tile_path}/(BAND).tiff',
+        'sensingTime': sensingTime_reformatted
         }
     
     response = oauth.post(f'https://services.sentinel-hub.com/api/v1/byoc/collections/{collection_id}/tiles', json=tile)
