@@ -30,7 +30,7 @@ def unstack_image_and_cognify(input_path):
                 for ffile in os.listdir(subfolder_fullpath):
                     file_name = os.fsdecode(ffile) # decode file system
                     filename_path = os.path.join(subfolder_fullpath, file_name)                
-                    if os.path.isfile(filename_path) and filename_path.endswith('.tiff'):
+                    if filename_path.endswith('.tiff') or file_name.endswith('.tif'):
                         print(filename_path)
                         name = os.path.splitext(os.path.basename(filename_path))[0]
                         name_in_moved_file = r"{}\uploaded\{}.tiff".format(subfolder_fullpath,name) # create location file path to move the file there
@@ -53,7 +53,7 @@ def unstack_image_and_cognify(input_path):
                 subfolder_fullpath = os.path.join(full_path, subfolder)         
                 for ffile in os.listdir(subfolder_fullpath):
                     file_name = os.fsdecode(ffile) # decode file system
-                    if file_name.endswith('.tiff'):
+                    if file_name.endswith('.tiff') or file_name.endswith('.tif'):
                         filename_path = os.path.join(subfolder_fullpath, file_name) # initial file path of the image
                         name = os.path.splitext(os.path.basename(filename_path))[0]
                         name_in_moved_file = r"{}\uploaded\{}.tiff".format(subfolder_fullpath,name) # upload file name
@@ -123,13 +123,13 @@ def ingest_to_SH(json_drones, json_s2):
 def uploader():
     unstack_image_and_cognify(main_Directory)
     ingest_to_SH(r'.\json_drones.json', r'.\json_s2.json')
-    
-    
+      
+      
 def main():
     uploader()
-    os.remove(r'.\json_drones.json'); os.remove(r'.\json_s2.json')
+#     os.remove(r'.\json_drones.json'); os.remove(r'.\json_s2.json')
     schedule.every(5).days.do(uploader) # revisit time of Sentinel-2
-    
+      
     while True:
         schedule.run_pending()
         time.sleep(1)
