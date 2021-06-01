@@ -8,8 +8,6 @@ import datetime, time
 import geopandas as gpd
 from shapely.geometry import Polygon
 # Sentinel Hub libs
-from eolearn.core import *
-from eolearn.io import *
 from sentinelhub import * 
 
 # Load wkt with the AOI
