@@ -1,10 +1,9 @@
 import os, sys
-import json, numpy as np
-from osgeo import gdal, osr
-from PIL import Image
+import json
+from osgeo import gdal
 
 root = r'.'
-connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData_geotiff2'
+connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 
 def getting_newdates(root):
@@ -37,11 +36,11 @@ def multiband_stack_geotiff(bandList, folderPath, rgb_name, sensing_time):
     outVRT = os.path.join(multiband_folder, outVRTName)
     outTiffName = f'S2_{rgb_name}_mosaic_{sensing_time}.tiff'
     outTIFF = os.path.join(multiband_folder, outTiffName)
-    output_8bitname = f'S2_{rgb_name}_mosaic_{sensing_time}_8bit.tiff'
-    output_8bit_TIFF = os.path.join(multiband_folder, output_8bitname)
+#     output_8bitname = f'S2_{rgb_name}_mosaic_{sensing_time}_8bit.tiff'
+#     output_8bit_TIFF = os.path.join(multiband_folder, output_8bitname)
     outds = gdal.BuildVRT(outVRT, tifs, separate=True)
     outds = gdal.Translate(outTIFF, outds)    
-    gdal.RGBFile2PCTFile(outTIFF, output_8bit_TIFF) # convert RGB to 8-bit pseudo palleted image inserted to DNN   
+#     gdal.RGBFile2PCTFile(outTIFF, output_8bit_TIFF) # convert RGB to 8-bit pseudo palleted image inserted to DNN. Deprecated functionality. We don't want this.    
 
 def single2multi(outputroot):
     list_newDates10 , list_newDates20 = getting_newdates(root)
