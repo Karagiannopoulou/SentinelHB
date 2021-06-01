@@ -2,7 +2,7 @@ import os, sys, shutil
 # Sinergise libraries
 from eolearn.core import EOPatch   
 # geospatial libraries
-from osgeo import gdal, ogr, osr
+from osgeo import gdal, osr
 import numpy as np
 from skimage.util import img_as_ubyte
 from skimage import exposure
@@ -10,18 +10,16 @@ from skimage import exposure
 from general_functions import makepath
 
 # Global variables
-mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
-# mainDirectory = r'.\downloadData'
-# outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
-outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_geotiff2'
+mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
+outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 
 def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff'):
     # subdirPath: it is the eopatches folder path e.g. .\downloadData\output10\eopatch_10_0
     
-    name = os.path.basename(os.path.normpath(subdirPath)) # getting the eopatches (e.g eopatch_10_0)
+    name = os.path.basename(os.path.normpath(subdirPath)) # getting the eopatches name from folder (e.g eopatch_10_0)
     pixelRes = name.split('_')[1] # getting the spatial resolution from the folder name
-    eopatch = EOPatch.load(subdirPath, lazy_loading=False)
+    eopatch = EOPatch.load(subdirPath, lazy_loading=False) # read the data included in the EOpatch cube
     xmin,ymin,xmax,ymax = eopatch.bbox
     timestamp = eopatch.timestamp
     
@@ -35,14 +33,11 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
         data = np.moveaxis(arr, -1, 0) # reshape the dimensions of the array to have the bands first                        
         for i, image in enumerate(data, 1):
             min_image = np.min(image); max_image = np.max(image)
-            print("min {}, max {}".format(min_image, max_image))
             if max_image>1.0:
                 image = exposure.rescale_intensity(image, in_range='float')
                 min_image = np.min(image); max_image = np.max(image)
-                print("min rescaled {}, max rescaled {}".format(min_image, max_image))
                 norm_image = img_as_ubyte(image)
                 minValue = np.min(norm_image); maxValue = np.max(norm_image)
-                print("min norm {}, max norm {}".format(minValue, maxValue))
                 if minValue == 0 and maxValue == 0: # delete the folder when the image has zero values
                     try: 
                         print('folder: {} deleted'.format(tmp_fullpath))
