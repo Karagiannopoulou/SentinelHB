@@ -18,7 +18,7 @@ from getEOPatches import createGeoJson, patchesGenerator, splitpatches_Lithuania
 
 # Define local paths 
 root = r'.'
-ini_folder = r'D:\DIONE\WP3\SuperResolution\downloadData'
+ini_folder = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
 logsFolder = r'.\logsFolder'
 # Load wkt with the AOI
 geospatialFolder = r'.\bbox'
@@ -150,10 +150,11 @@ def dynamic_startDate(root):
         date_dts20 = datetime.datetime.strptime(key20, '%Y%m%dT%H%M%S')
         list_with_dates_10.append(date_dts10); list_with_dates_20.append(date_dts20)
     
-    # calculate the latest datetime from a list of the images days 
+    # calculate the latest datetime of a list with images dates
     youngest10 = max(list_with_dates_10); youngest20 = max(list_with_dates_20)
     
-    # pic the latest date
+    # pic the latest date. Compare the youngest date that is calculated for the json 10, and 20 and take the most current. 
+    # We expect to be the same always but you never know.
     if youngest10>youngest20:
         youngest10_Str = youngest10.strftime('%Y-%m-%d')
         time_start=youngest10_Str
@@ -169,10 +170,10 @@ def dynamic_startDate(root):
 
 def starting_time(root):
     
-    if any(File.endswith(".json") for File in os.listdir(root)):
+    if any(File.startswith("mainDict") for File in os.listdir(root)): # check if a json exists. if no it means that the process is initiated for the first time and the data will be the taken from the else.
         starting_Date = dynamic_startDate(root)
     else:
-        starting_Date = '2020-03-01'
+        starting_Date = '2021-03-01'
     
     return starting_Date
     
@@ -189,10 +190,10 @@ def downloadEO(resolution, start_date, maxcc=0.1):
     
     # Define the start date and end date   
     start_datetime = start_date
-#     now = datetime.datetime.now() # activate this in automated process
-#     end_datetime = now.strftime('%Y-%m-%d') # activate this in automated process
-#     time_interval = (start_datetime, end_datetime) # activate this in automated process
-    time_interval = (start_datetime, '2020-03-30') # deactivate this in case of manual process 
+    now = datetime.datetime.now() # activate this in automated process
+    end_datetime = now.strftime('%Y-%m-%d') # activate this in automated process
+    time_interval = (start_datetime, end_datetime) # activate this in automated process
+#     time_interval = (start_datetime, '2020-03-30') # activate this in case of manual process 
     
     # Define the parameters for the service request
     input_task10 = SentinelHubInputTask(
