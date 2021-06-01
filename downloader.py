@@ -14,8 +14,8 @@ from createMultibands import single2multi
 # define the resolution of the spectral bands
 resolution = [10,20]
 root = r'.'
-mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData'
-outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
+mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
+outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 def downloader():
 #     Download Sentinel-2 data
@@ -40,7 +40,7 @@ def downloader():
 
 def main():
     downloader()
-    schedule.every(5).days.do(downloader) # revisit time of Sentinel-2
+    schedule.every(5).days.do(downloader) # activate every 5 dates
     
     while True:
         schedule.run_pending()
