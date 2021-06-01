@@ -1,23 +1,17 @@
 import os, sys
-
 # libs related to time
 from datetime import datetime
-
 # data manipulation
-import collections
-import json 
-
+import collections, json 
 # geospatial libs
 import rasterio
 from rasterio.merge import merge
-
 # Custom scripts
-# from createMultibands import single2multi
 from general_functions import makepath
 
 # Global variables
 root = r'.'
-connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData'
+connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 def getDates(input_folder, subfolder_prefix='out'):
     dateslist = []
@@ -76,7 +70,7 @@ def getSingleDates(input_folder, subfolder_prefix='out'):
 
 
 def getDictionary(root, input_folder):    
-    # ini input and output variables     
+         
     dict10 , dict20 = getSingleDates(input_folder)
 
     bandsList10 = ['B1', 'B2', 'B3', 'B4'] ; bandsList20 = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
@@ -84,7 +78,7 @@ def getDictionary(root, input_folder):
     
     # remove the older dictionaries in order to write the new ones    
     for ffile in os.listdir(root):
-        if ffile.endswith('.json'):
+        if ffile.startswith('mainDict'):
             os.remove(ffile)
             print("json files deleted")
         else:
