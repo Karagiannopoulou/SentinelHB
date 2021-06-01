@@ -1,4 +1,1 @@
-{
-    "Cyprus": ["cogs/tiles-iccs/Cyprus/Sentinel2/20200428T082601/B5_cog.tiff", "cogs/tiles-iccs/Cyprus/Sentinel2/20200428T082601/B6_cog.tiff", "cogs/tiles-iccs/Cyprus/Sentinel2/20200428T082601/B7_cog.tiff"],
-    "Lithuania": ["cogs/tiles-iccs/Lithuania/Sentinel2/20200618T094041/B5_cog.tiff", "cogs/tiles-iccs/Lithuania/Sentinel2/20200618T094041/B6_cog.tiff", "cogs/tiles-iccs/Lithuania/Sentinel2/20200618T094041/B7_cog.tiff"]
-}
+{"Cyprus": [], "Lithuania": []}
