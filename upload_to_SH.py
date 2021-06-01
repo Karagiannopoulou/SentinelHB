@@ -21,14 +21,14 @@ token = oauth.fetch_token(token_url='https://services.sentinel-hub.com/oauth/tok
 resp = oauth.get("https://services.sentinel-hub.com/oauth/tokeninfo")
     
 
-def im_read(S3_bucket_name, key_name):
-    s3 = boto3.resource('s3', region_name=region)
-    bucket = s3.Bucket(S3_bucket_name)
-    object = bucket.Object(key_name)
-    response = object.get()
-    file_stream = response['Body']
-    
-    return file_stream    
+# def im_read(S3_bucket_name, key_name):
+#     s3 = boto3.resource('s3', region_name=region)
+#     bucket = s3.Bucket(S3_bucket_name)
+#     object = bucket.Object(key_name)
+#     response = object.get()
+#     file_stream = response['Body']
+#     
+#     return file_stream    # deprecated functionality
 
 
 def data_conversion_to_ingest(key_name, collection_id):
