@@ -5,15 +5,11 @@ import os
 
 # Data visualisation/Datetime
 import numpy as np
-import datetime
-
 # Basics of GIS
 import geopandas as gpd
 from shapely.geometry import Polygon
 
 # Sentinel Hub libs
-from eolearn.core import *
-from eolearn.io import *
 from sentinelhub import * 
 
 # import custom scripts
