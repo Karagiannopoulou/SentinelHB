@@ -3,7 +3,6 @@ import sys, os, shutil, json
 import time, schedule 
 
 # Basics of GIS
-from osgeo import gdal
 from general_functions import makepath
 
 #custom functions
@@ -13,7 +12,8 @@ from upload_to_s3 import ingest_to_S3
 from upload_to_SH import data_conversion_to_ingest
  
 # Global vars
-main_Directory = r'D:\DIONE\WP3\SuperResolution\uploadData'
+# main_Directory = r'D:\DIONE\WP3\SuperResolution\uploadData' # test 
+main_Directory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\uploadData' # final data storage
 
 def unstack_image_and_cognify(input_path):
     
@@ -55,6 +55,7 @@ def unstack_image_and_cognify(input_path):
                     file_name = os.fsdecode(ffile) # decode file system
                     if file_name.endswith('.tiff') or file_name.endswith('.tif'):
                         filename_path = os.path.join(subfolder_fullpath, file_name) # initial file path of the image
+                        print(filename_path)
                         name = os.path.splitext(os.path.basename(filename_path))[0]
                         name_in_moved_file = r"{}\uploaded\{}.tiff".format(subfolder_fullpath,name) # upload file name
                         sensing_time = name.split("_")[-1] # take the time of the image
@@ -127,7 +128,6 @@ def uploader():
       
 def main():
     uploader()
-#     os.remove(r'.\json_drones.json'); os.remove(r'.\json_s2.json')
     schedule.every(5).days.do(uploader) # revisit time of Sentinel-2
       
     while True:
