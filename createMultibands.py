@@ -27,19 +27,20 @@ def getting_newdates(root):
 
 
 
-def multiband_stack_geotiff(bandList, folderPath, rgb_name, sensing_time):
+def multiband_stack_geotiff(bandList, folderPath, sensing_time, rgb_name):
     tifs = bandList
     multiband_folder = os.path.join(folderPath,'multiband')
     if not os.path.exists(multiband_folder): 
         os.makedirs(multiband_folder)
-    outVRTName = f'VRT_{rgb_name}_{sensing_time}.vrt'
+    outVRTName = f'VRT_{sensing_time}_{rgb_name}.vrt'
     outVRT = os.path.join(multiband_folder, outVRTName)
-    outTiffName = f'S2_{rgb_name}_mosaic_{sensing_time}.tiff'
+    outTiffName = f'S2_{sensing_time}_mosaic_{rgb_name}.tiff'
     outTIFF = os.path.join(multiband_folder, outTiffName)
 #     output_8bitname = f'S2_{rgb_name}_mosaic_{sensing_time}_8bit.tiff'
 #     output_8bit_TIFF = os.path.join(multiband_folder, output_8bitname)
     outds = gdal.BuildVRT(outVRT, tifs, separate=True)
-    outds = gdal.Translate(outTIFF, outds)    
+    outds = gdal.Translate(outTIFF, outds)
+    print(outTIFF)    
 #     gdal.RGBFile2PCTFile(outTIFF, output_8bit_TIFF) # convert RGB to 8-bit pseudo palleted image inserted to DNN. Deprecated functionality. We don't want this.    
 
 def single2multi(outputroot):
@@ -85,11 +86,11 @@ def single2multi(outputroot):
                         if band==6 and str(band) in ffile:
                             bandList20_8a1112.append(os.path.join(folderPath,ffile))
                 
-                # RGB for the 567 spectral bands
-                multiband_stack_geotiff(bandList20_567, folderPath, sensing_time, '567')
-                 
-                # RGB for the 8a1112 spectral bands
-                multiband_stack_geotiff(bandList20_8a1112, folderPath, sensing_time, '8a1112')
+                    # RGB for the 567 spectral bands
+                    multiband_stack_geotiff(bandList20_567, folderPath, sensing_time, '567')
+                     
+                    # RGB for the 8a1112 spectral bands
+                    multiband_stack_geotiff(bandList20_8a1112, folderPath, sensing_time, '8a1112')
                             
 
 
