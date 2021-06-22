@@ -14,8 +14,10 @@ mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
 outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 
-def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff'):
+def geotiff_Generator(subdirPath, outputsubPath, UTM, format = 'GTiff'):
     # subdirPath: it is the eopatches folder path e.g. .\downloadData\output10\eopatch_10_0
+    
+#     dateslist = []
     
     name = os.path.basename(os.path.normpath(subdirPath)) # getting the eopatches name from folder (e.g eopatch_10_0)
     pixelRes = name.split('_')[1] # getting the spatial resolution from the folder name
@@ -25,7 +27,7 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
     
     for time,arr in zip(list(timestamp),eopatch.data['L2A_data']):
         datetime_str = time.strftime('%Y%m%dT%H%M%S')
-        dateslist.append(datetime_str)
+#         dateslist.append(datetime_str)   
         tmp_name = f'{name}_{datetime_str}' # create the eopatch folder e.g.eopatch_10_0_20210305T094513
         tmp_fullpath = os.path.join(outputsubPath, tmp_name)
         tmpDir_fullpath = makepath(tmp_fullpath)                             
@@ -61,7 +63,6 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
             else:
                 norm_image = img_as_ubyte(image)
                 minValue = np.min(norm_image); maxValue = np.max(norm_image)
-                print("min norm {}, max norm {}".format(minValue, maxValue))
                 if minValue == 0 and maxValue == 0: # delete the folder when the image has zero values
                     try: 
                         print('folder: {} deleted'.format(tmp_fullpath))
@@ -90,7 +91,7 @@ def export2TIFF(input_folder, outputDirectory, subfolder_prefix = 'out'):
     # output directory: where the geotiffs will be exported 
     # subfolder prefix: a prefix such as the word 'out' that indicates the specific folder where the eopatches are stored
     # format: by default it was set to export the images in geotiff
-    dateslist = []
+    
     for dir in os.listdir(input_folder): 
         if dir.startswith(subfolder_prefix):
             dirPath = os.path.join(input_folder, dir)
@@ -101,9 +102,9 @@ def export2TIFF(input_folder, outputDirectory, subfolder_prefix = 'out'):
                 outputsubPath = os.path.join(outputdirPath, subdir)
                 outputsubdirPath = makepath(outputsubPath)         
                 if not "_CY" in subdirPath:
-                    geotiff_Generator(subdirPath, dateslist, outputsubdirPath, 32634)                                  
+                    geotiff_Generator(subdirPath, outputsubdirPath, 32634)       
                 if "_CY" in subdirPath:
-                    geotiff_Generator(subdirPath, dateslist, outputsubdirPath, 32636)
+                    geotiff_Generator(subdirPath, outputsubdirPath, 32636)
 
 if __name__ == '__main__':
     export2TIFF(mainDirectory, outputDirectory)
