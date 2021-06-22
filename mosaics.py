@@ -2,7 +2,7 @@ import os, sys
 # libs related to time
 from datetime import datetime
 # data manipulation
-import collections, json 
+import collections, json
 # geospatial libs
 import rasterio
 from rasterio.merge import merge
@@ -11,7 +11,7 @@ from general_functions import makepath
 
 # Global variables
 root = r'.'
-connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
+connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData_output_2021'
 
 def getDates(input_folder, subfolder_prefix='out'):
     dateslist = []
@@ -29,21 +29,21 @@ def getDates(input_folder, subfolder_prefix='out'):
                          
     return dateslist
     
-def getSingleDates(input_folder, subfolder_prefix='out'): 
+def get_first_dictionaries(input_folder, subfolder_prefix='out'): 
     
     dateslists = getDates(input_folder) 
-    counter = collections.Counter(dateslists);  # it's a list not a dictionary to take the keys with the
-    # frequency of each single date
+    counter = collections.Counter(dateslists)  # it's a list not a dictionary to take the keys with the single dates
+    single_dates = sorted(counter) # sort the dates because they are sorted based on maximum counts and not by the closest date
+    
     dataDict10 = {}; dataDict20 = {} 
     
-    for sensingTime in counter:    
+    for sensingTime in single_dates:   
         tmpList10 = []; tmpList20 = []         
         for dir in os.listdir(input_folder):
             if dir.startswith(subfolder_prefix):           
                 dirPath = os.path.join(input_folder, dir)
                 for folder in os.listdir(dirPath):
-                    folderPath = os.path.join(dirPath, folder)
-        
+                    folderPath = os.path.join(dirPath, folder)        
                     if 'eopatch_10' in folderPath:
                         for subfolder in os.listdir(folderPath):
                             if subfolder.endswith(sensingTime):
@@ -69,9 +69,9 @@ def getSingleDates(input_folder, subfolder_prefix='out'):
     return dataDict10, dataDict20
 
 
-def getDictionary(root, input_folder):    
+def get_jsons_for_mosaic(root, input_folder):    
          
-    dict10 , dict20 = getSingleDates(input_folder)
+    dict10, dict20 = get_first_dictionaries(input_folder)   
 
     bandsList10 = ['B1', 'B2', 'B3', 'B4'] ; bandsList20 = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
     tmpList10 = []; tmpList20 = [] 
@@ -81,14 +81,12 @@ def getDictionary(root, input_folder):
         if ffile.startswith('mainDict'):
             os.remove(ffile)
             print("json files deleted")
-        else:
-            continue
     
     for values in dict10.values():
         tmp = {}
         for band in bandsList10:            
             filesList = []
-            for ffile in values:           
+            for ffile in values:         
                 if band in ffile:
                     filesList.append(ffile)
             tmp[band] = filesList
@@ -157,11 +155,11 @@ def createMosaics (output_folder):
     Lith_foldername10 = 'Lith_output10'; Lith_foldername20 = 'Lith_output20' 
     Cy_foldername10 = 'CY_output10'; Cy_foldername20 = 'CY_output20' 
     
-    dict10Name, dict20Name = getDictionary(root, connectingFolder) 
+    dict10Name, dict20Name = get_jsons_for_mosaic(root, connectingFolder) 
     
     dict10 = os.path.join(root, dict10Name); dict20 = os.path.join(root, dict20Name)   
     J10 = open(dict10); J20 = open(dict20)
-    dictJSON_10 = json.load(J10); dictJSON_20 = json.load(J20)  
+    dictJSON_10 = json.load(J10); dictJSON_20 = json.load(J20)
     
     for (key,value) in dictJSON_10.items(): # iterate through the dictionary 10, that contains files in 10m resolution
         for idx, subvalue in enumerate(value.values()):
