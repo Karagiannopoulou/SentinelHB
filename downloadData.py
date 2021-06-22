@@ -171,7 +171,10 @@ def dynamic_startDate(root):
 def starting_time(root):
     
     if any(File.startswith("mainDict") for File in os.listdir(root)): # check if a json exists. if no it means that the process is initiated for the first time and the data will be the taken from the else.
-        starting_Date = dynamic_startDate(root)
+        latest_Date = dynamic_startDate(root) # get the latest date 
+        latest_Date_datetime = datetime.datetime.strptime(latest_Date, '%Y-%m-%d')
+        starting_Date_datetime = latest_Date_datetime + datetime.timedelta(days=1) # get one day after and define it as the start date... 
+        starting_Date = starting_Date_datetime.strftime('%Y-%m-%d')
     else:
         starting_Date = '2021-03-01'
     
