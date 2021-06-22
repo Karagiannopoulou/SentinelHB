@@ -4,6 +4,7 @@ import time, schedule
 
 # Basics of GIS
 from general_functions import makepath
+from datetime import datetime
 
 #custom functions
 from secrets import *
@@ -49,21 +50,22 @@ def unstack_image_and_cognify(input_path):
                                
                       
             
-            if 'Sentinel2' in subfolder:
+            elif 'Sentinel2' in subfolder:
                 subfolder_fullpath = os.path.join(full_path, subfolder)         
                 for ffile in os.listdir(subfolder_fullpath):
                     file_name = os.fsdecode(ffile) # decode file system
                     if file_name.endswith('.tiff') or file_name.endswith('.tif'):
                         filename_path = os.path.join(subfolder_fullpath, file_name) # initial file path of the image
-                        print(filename_path)
+                        print("filename_path: {}".format(filename_path))
                         name = os.path.splitext(os.path.basename(filename_path))[0]
                         name_in_moved_file = r"{}\uploaded\{}.tiff".format(subfolder_fullpath,name) # upload file name
                         sensing_time = name.split("_")[-1] # take the time of the image
                         rgbName = name.split("_")[1] # take the rgb of the image
                         rgbBand_list = split(rgbName) # split the part of the name showing the bands e.g. 567 and include them into a list
+                        tileFolder_Name = os.path.join(subfolder_fullpath,sensing_time)
+                        tile_folder = makepath(tileFolder_Name)
+                        
                         if (len(rgbName)%2)==1 and rgbName in filename_path: # if the list of the length is an uneven number then include in band names 5,6,7 bands and create the folder with sensing time as a name 
-                            tileFolder_Name = os.path.join(subfolder_fullpath,sensing_time)
-                            tile_folder = makepath(tileFolder_Name)
                             band_name_list, outputband_list = create_single_band_image_Sentinel(filename_path,rgbBand_list,tile_folder)
                             shutil.move(filename_path, name_in_moved_file)
                             for band_name, outputband in zip(band_name_list, outputband_list): 
@@ -76,7 +78,7 @@ def unstack_image_and_cognify(input_path):
                             
                          
                         elif (len(rgbName)%2)==0 and rgbName in filename_path: # if the length of the list is even (e.g. 8a, 11, 12) the folder exists, so go to the same folder an create the bands 8a, 11, 12
-                            band_name_list, outputband_list = create_single_band_image_Sentinel(filename_path,rgbBand_list,tile_folder)
+                            band_name_list, outputband_list = create_single_band_image_Sentinel(filename_path,rgbBand_list, tile_folder)
                             shutil.move(filename_path, name_in_moved_file)
                             for band_name, outputband in zip(band_name_list, outputband_list): 
                                 cog_file = cognify_image(outputband, tile_folder, band_name, blocksize=2048, nodata=None)
@@ -85,13 +87,13 @@ def unstack_image_and_cognify(input_path):
                 
     json_drones = {'Cyprus': ingested_drones_cyprus, 'Lithuania':ingested_drones_lithuania}
     print(json_drones)
-       
+        
     with open('json_drones.json', "w") as outfile:  
         json.dump(json_drones, outfile) 
-    
+     
     json_json_s2 = {'Cyprus': ingested_S2_cyprus, 'Lithuania':ingested_S2_lithuania}
     print(json_json_s2)
-    
+     
     with open('json_s2.json', "w") as outfile:
         json.dump(json_json_s2, outfile)           
     
@@ -104,32 +106,33 @@ def ingest_to_SH(json_drones, json_s2):
     for dr_key,dr_values in dictJSON_drones.items():
         for dr_image in dr_values:
             if dr_image.endswith('B1_cog.tiff') and dr_key=='Cyprus':
-                print('location {}, images {}'.format(dr_key, dr_image))
+#                 print('location {}, images {}'.format(dr_key, dr_image))
                 data_conversion_to_ingest(dr_image, collection_id_Cyprus_dr)
             elif dr_image.endswith('B1_cog.tiff') and dr_key=='Lithuania':
-                print('location {}, images {}'.format(dr_key, dr_image))
+#                 print('location {}, images {}'.format(dr_key, dr_image))
                 data_conversion_to_ingest(dr_image, collection_id_Lithuania_dr)
            
 
     for s2_key,s2_values in dictJSON_s2.items():
         for s2_image in s2_values:
             if s2_image.endswith('B5_cog.tiff') and s2_key=='Cyprus':
-                print('location {}, images {}'.format(s2_key, s2_image))
+#                 print('location {}, images {}'.format(s2_key, s2_image))
                 data_conversion_to_ingest(s2_image, collection_id=collection_id_Cyprus_s2)
             elif s2_image.endswith('B5_cog.tiff') and s2_key=='Lithuania':
-                print('location {}, images {}'.format(s2_key, s2_image))
+#                 print('location {}, images {}'.format(s2_key, s2_image))
                 data_conversion_to_ingest(s2_image, collection_id=collection_id_Lithuania_s2)
 
 
 def uploader():
     unstack_image_and_cognify(main_Directory)
     ingest_to_SH(r'.\json_drones.json', r'.\json_s2.json')
+    print(datetime.now())
       
       
 def main():
     uploader()
-    schedule.every(5).days.do(uploader) # revisit time of Sentinel-2
-      
+    schedule.every(2).days.do(uploader) 
+    
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -137,8 +140,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-    
