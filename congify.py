@@ -27,7 +27,7 @@ def create_single_band_image_Sentinel(filename_path,rgbBand_list,tile_folder):
         band_name = "B{}".format(b) # we create this and provided it as an output in the return to be an input in the congify function
         band_name_tiff = "B{}.tiff".format(b) # output band name including the tiff prefix, generating the geotiff single band file 
         outputband = os.path.join(tile_folder,band_name_tiff) # output full path file name, included in the return to be also an input in the congify function
-#         print("output band: {}".format(outputband))
+    #         print("output band: {}".format(outputband))
         gdal.Translate(outputband, img, format='GTiff', bandList=[band])
         band_list.append(band_name)
         output_image_fullpath.append(outputband)
