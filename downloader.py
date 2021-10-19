@@ -17,24 +17,23 @@ resolution = [10,20]
 root = r'.'
 mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
 outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
-# outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_output_2021'
-
+# outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
 
 def downloader():
-#     Download Sentinel-2 data
+    Download Sentinel-2 data
     print('Initiating the process .........')
     start_datetime = starting_time(root)
     print(start_datetime)
     downloadEO(resolution, start_datetime)
-     
-#     convert to geotiff
+
+    # convert to geotiff
     print('Starting to export the geotiffs .........')
     export2TIFF(mainDirectory, outputDirectory)
     print('exporting end!')
      
     # create mosaics and multiband stack mosaics
     print('Starting creating mosaics.........')    
-    createMosaics(outputDirectory)
+    createMosaics(root, outputDirectory)
     cleanFolder(outputDirectory, subfolder_prefix='out') # clean the folders containing the data from which the mosaics were created
     single2multi(outputDirectory)
     print('multistack mosaics are ready')
@@ -51,8 +50,7 @@ def main():
     
 
 if __name__ == '__main__':
-    downloader()
-#     main()
+    main()
     
  
 
