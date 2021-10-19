@@ -3,6 +3,7 @@ import os, sys, shutil
 from eolearn.core import EOPatch   
 # geospatial libraries
 from osgeo import gdal, osr
+# Data analysis libraries
 import numpy as np
 from skimage.util import img_as_ubyte
 from skimage import exposure
@@ -22,8 +23,7 @@ def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff
     eopatch = EOPatch.load(subdirPath, lazy_loading=False) # read the data included in the EOpatch cube
     xmin,ymin,xmax,ymax = eopatch.bbox
     timestamp = eopatch.timestamp
-    print(timestamp)
-    
+    # print(timestamp)
     
     for time,arr in zip(list(timestamp),eopatch.data['L2A_data']):
         datetime_str = time.strftime('%Y%m%dT%H%M%S')
