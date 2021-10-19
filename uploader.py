@@ -10,7 +10,7 @@ from datetime import datetime
 from secrets import *
 from congify import split, create_single_band_image_Sentinel, create_single_band_image_drones, cognify_image
 from upload_to_s3 import ingest_to_S3
-from upload_to_SH import data_conversion_to_ingest
+from upload_to_SH_v2 import data_conversion_and_ingest
  
 # Global vars
 # main_Directory = r'D:\DIONE\WP3\SuperResolution\uploadData' # test 
@@ -47,8 +47,7 @@ def unstack_image_and_cognify(input_path):
                                 ingested_drones_cyprus.append(ingested_file)
                             elif 'Lithuania' in ingested_file:
                                 ingested_drones_lithuania.append(ingested_file)
-                               
-                      
+                        
             
             elif 'Sentinel2' in subfolder:
                 subfolder_fullpath = os.path.join(full_path, subfolder)         
@@ -75,8 +74,7 @@ def unstack_image_and_cognify(input_path):
                                     ingested_S2_cyprus.append(ingested_file)
                                 elif 'Lithuania' in ingested_file:
                                     ingested_S2_lithuania.append(ingested_file) # append only once as I don't care to have all the bands, as I only want the s3 folder name 
-                            
-                         
+
                         elif (len(rgbName)%2)==0 and rgbName in filename_path: # if the length of the list is even (e.g. 8a, 11, 12) the folder exists, so go to the same folder an create the bands 8a, 11, 12
                             band_name_list, outputband_list = create_single_band_image_Sentinel(filename_path,rgbBand_list, tile_folder)
                             shutil.move(filename_path, name_in_moved_file)
@@ -98,7 +96,7 @@ def unstack_image_and_cognify(input_path):
         json.dump(json_json_s2, outfile)           
     
 
-def ingest_to_SH(json_drones, json_s2):
+def ingest_to_data_collections(json_drones, json_s2):
     
     J_drones = open(json_drones); J_s2 = open(json_s2)
     dictJSON_drones = json.load(J_drones); dictJSON_s2 = json.load(J_s2)
@@ -107,25 +105,25 @@ def ingest_to_SH(json_drones, json_s2):
         for dr_image in dr_values:
             if dr_image.endswith('B1_cog.tiff') and dr_key=='Cyprus':
 #                 print('location {}, images {}'.format(dr_key, dr_image))
-                data_conversion_to_ingest(dr_image, collection_id_Cyprus_dr)
+                data_conversion_and_ingest(dr_image, collection_id_Cyprus_dr)
             elif dr_image.endswith('B1_cog.tiff') and dr_key=='Lithuania':
 #                 print('location {}, images {}'.format(dr_key, dr_image))
-                data_conversion_to_ingest(dr_image, collection_id_Lithuania_dr)
+                data_conversion_and_ingest(dr_image, collection_id_Lithuania_dr)
            
 
     for s2_key,s2_values in dictJSON_s2.items():
         for s2_image in s2_values:
             if s2_image.endswith('B5_cog.tiff') and s2_key=='Cyprus':
 #                 print('location {}, images {}'.format(s2_key, s2_image))
-                data_conversion_to_ingest(s2_image, collection_id=collection_id_Cyprus_s2)
+                data_conversion_and_ingest(s2_image, collection_id=collection_id_Cyprus_s2)
             elif s2_image.endswith('B5_cog.tiff') and s2_key=='Lithuania':
 #                 print('location {}, images {}'.format(s2_key, s2_image))
-                data_conversion_to_ingest(s2_image, collection_id=collection_id_Lithuania_s2)
+                data_conversion_and_ingest(s2_image, collection_id=collection_id_Lithuania_s2)
 
 
 def uploader():
     unstack_image_and_cognify(main_Directory)
-    ingest_to_SH(r'.\json_drones.json', r'.\json_s2.json')
+    ingest_to_data_collections(r'.\json_drones.json', r'.\json_s2.json')
     print(datetime.now())
       
       
