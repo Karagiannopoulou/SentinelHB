@@ -195,8 +195,8 @@ def downloadEO(resolution, start_date, maxcc=0.1):
     start_datetime = start_date
     now = datetime.datetime.now() # activate this in automated process
     end_datetime = now.strftime('%Y-%m-%d') # activate this in automated process
-    time_interval = (start_datetime, end_datetime) # activate this in automated process
-#     time_interval = (start_datetime, '2020-03-30') # activate this in case of manual process 
+    # time_interval = (start_datetime, end_datetime) # activate this in automated process
+    time_interval = (start_datetime, '2021-09-30') # activate this in case of manual process
     
     # Define the parameters for the service request
     input_task10 = SentinelHubInputTask(
