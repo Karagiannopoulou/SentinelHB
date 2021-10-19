@@ -11,7 +11,7 @@ from general_functions import makepath
 
 # Global variables
 root = r'.'
-connectingFolder = r'D:\DIONE\WP3\SuperResolution\downloadData_output_2021'
+connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 def getDates(input_folder, subfolder_prefix='out'):
     dateslist = []
@@ -125,7 +125,7 @@ def get_jsons_for_mosaic(root, input_folder):
     
     return mainDict10json_Name, mainDict20json_Name
     
-def write_mosaic(out_meta, mosaic, out_trans, folder_name, output_folder, band, key, zone):
+def write_mosaic(out_meta, mosaic, out_trans, folder_name, output_folder, band, key, dst_crs):
 
     # write the metadata of the mosaic
     out_meta.update({
@@ -133,29 +133,28 @@ def write_mosaic(out_meta, mosaic, out_trans, folder_name, output_folder, band, 
         "height": mosaic.shape[1],
         "width": mosaic.shape[2],
         "transform": out_trans,
-        "crs": "+proj=utm +zone={} +ellps=GRS80 +units=m +no_defs".format(zone)
-    }) 
+        "crs": dst_crs
+    })
        
     tmpname = 'mosaic_{}'.format(folder_name) # create the central folder that will contain all the mosaics
     tmppath = os.path.join(output_folder, tmpname)
     tmppathFinal = makepath(tmppath)
-    
     mosaicfolder = os.path.join(tmppathFinal,key) # create the single folder contain the mosaic bands per single sensing date
     mosaicfolderPath = makepath(mosaicfolder) 
     mosaicName = 'S2_mosaic_{}_B{}.tiff'.format(key, band) # create the name of the mosaic image
     mosaicName_fullpath = os.path.join(mosaicfolderPath, mosaicName)
     
     with rasterio.open(mosaicName_fullpath, "w", **out_meta) as dest: # write the mosaic to geotiff
-        dest.write(mosaic)       
+        dest.write(mosaic)
           
-    print(mosaicName_fullpath)    
+    print(mosaicName_fullpath)
 
-def createMosaics (output_folder):
+def createMosaics (root, output_folder):
     
     Lith_foldername10 = 'Lith_output10'; Lith_foldername20 = 'Lith_output20' 
     Cy_foldername10 = 'CY_output10'; Cy_foldername20 = 'CY_output20' 
     
-    dict10Name, dict20Name = get_jsons_for_mosaic(root, connectingFolder) 
+    dict10Name, dict20Name = get_jsons_for_mosaic(root, output_folder) 
     
     dict10 = os.path.join(root, dict10Name); dict20 = os.path.join(root, dict20Name)   
     J10 = open(dict10); J20 = open(dict20)
@@ -170,13 +169,14 @@ def createMosaics (output_folder):
                 mosaicList10.append(src)                    
 
             mosaic, out_trans = merge(mosaicList10)
+            # print(out_trans)
             out_meta = src.meta.copy()
             
             if out_meta['crs'] == 'EPSG:32634': # mosaic the data of Lithuania
-                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername10, output_folder, band, key, zone=34)           
+                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername10, output_folder, band, key, dst_crs='EPSG:32634')
                 
             elif out_meta['crs'] == 'EPSG:32636': # mosaic the data of Cyprus 
-                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername10, output_folder, band, key, zone=36)      
+                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername10, output_folder, band, key, dst_crs='EPSG:32636')
     
     for (key,value) in dictJSON_20.items(): # iterate through the dictionary 10, that contains the files in 20m resolution
         for idx, subvalue in enumerate(value.values()):
@@ -190,11 +190,11 @@ def createMosaics (output_folder):
             out_meta = src.meta.copy()
             
             if out_meta['crs'] == 'EPSG:32634':
-                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername20, output_folder, band, key, zone=34) 
+                write_mosaic(out_meta, mosaic, out_trans, Lith_foldername20, output_folder, band, key, dst_crs='EPSG:32634')
                 
             
             elif out_meta['crs'] == 'EPSG:32636':  
-                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername20, output_folder, band, key, zone=36)                           
+                write_mosaic(out_meta, mosaic, out_trans, Cy_foldername20, output_folder, band, key, dst_crs='EPSG:32636')
 
 if __name__ == '__main__': 
-    createMosaics(connectingFolder)
+    createMosaics(root, connectingFolder)
