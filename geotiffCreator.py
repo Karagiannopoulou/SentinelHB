@@ -10,15 +10,11 @@ from skimage import exposure
 from general_functions import makepath
 
 # Global variables
-mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
-outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
-
+mainDirectory = outputDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
+# outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
 def geotiff_Generator(subdirPath, outputsubPath, UTM, format = 'GTiff'):
     # subdirPath: it is the eopatches folder path e.g. .\downloadData\output10\eopatch_10_0
-    
-#     dateslist = []
-    
     name = os.path.basename(os.path.normpath(subdirPath)) # getting the eopatches name from folder (e.g eopatch_10_0)
     pixelRes = name.split('_')[1] # getting the spatial resolution from the folder name
     eopatch = EOPatch.load(subdirPath, lazy_loading=False) # read the data included in the EOpatch cube
@@ -34,56 +30,30 @@ def geotiff_Generator(subdirPath, outputsubPath, UTM, format = 'GTiff'):
         cols,rows,bands= np.shape(arr)                                                                  
         data = np.moveaxis(arr, -1, 0) # reshape the dimensions of the array to have the bands first                        
         for i, image in enumerate(data, 1):
-            min_image = np.min(image); max_image = np.max(image)
-            if max_image>1.0:
-                image = exposure.rescale_intensity(image, in_range='float')
-                min_image = np.min(image); max_image = np.max(image)
-                norm_image = img_as_ubyte(image)
-                minValue = np.min(norm_image); maxValue = np.max(norm_image)
-                if minValue == 0 and maxValue == 0: # delete the folder when the image has zero values
-                    try: 
-                        print('folder: {} deleted'.format(tmp_fullpath))
-                        shutil.rmtree(tmpDir_fullpath)
-                    except FileNotFoundError:
-                        continue
-                elif minValue != maxValue and os.path.exists(tmpDir_fullpath)==False:
-                    print('continue')
+            min_image_value = np.min(image); max_image_value = np.max(image)
+            # print("min {}".format(min_image_value))
+            # print("max {}".format(max_image_value))
+            # sys.exit()
+            if min_image_value == 0 and max_image_value == 0: # delete the folder when the image has zero values
+                try:
+                    print('folder: {} deleted'.format(tmp_fullpath))
+                    shutil.rmtree(tmpDir_fullpath)
+                except FileNotFoundError:
                     continue
-                else:                                                                
-                    outputName = f'{tmp_name}_B{i}.tiff'
-                    output_fullpath = os.path.join(tmpDir_fullpath, outputName)  
-                    DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_Byte) # create 8bitfloat output image
-                    DataSet.SetGeoTransform((xmin, int(pixelRes), 0, ymax, 0, -int(pixelRes))) # transform the dataset 
-                    srs = osr.SpatialReference()
-                    srs.ImportFromEPSG(UTM) 
-                    DataSet.SetProjection(srs.ExportToWkt())                      
-                    DataSet.GetRasterBand(1).WriteArray(norm_image) 
-                    DataSet = None
-                    print(output_fullpath)
+            elif min_image_value != max_image_value and os.path.exists(tmpDir_fullpath)==False:
+                print('continue')
+                continue
             else:
-                norm_image = img_as_ubyte(image)
-                minValue = np.min(norm_image); maxValue = np.max(norm_image)
-                if minValue == 0 and maxValue == 0: # delete the folder when the image has zero values
-                    try: 
-                        print('folder: {} deleted'.format(tmp_fullpath))
-                        shutil.rmtree(tmpDir_fullpath)
-                    except FileNotFoundError:
-                        continue
-                elif minValue != maxValue and os.path.exists(tmpDir_fullpath)==False:
-                    print('continue')
-                    continue
-                else:                                                                
-                    outputName = f'{tmp_name}_B{i}.tiff'
-                    output_fullpath = os.path.join(tmpDir_fullpath, outputName)  
-                    DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_Byte) # create 8bitfloat output image
-                    DataSet.SetGeoTransform((xmin, int(pixelRes), 0, ymax, 0, -int(pixelRes))) # transform the dataset 
-                    srs = osr.SpatialReference()
-                    srs.ImportFromEPSG(UTM) 
-                    DataSet.SetProjection(srs.ExportToWkt())                      
-                    DataSet.GetRasterBand(1).WriteArray(norm_image) 
-                    DataSet = None
-                    print(output_fullpath)
-                        
+                outputName = f'{tmp_name}_B{i}.tiff'
+                output_fullpath = os.path.join(tmpDir_fullpath, outputName)
+                DataSet = gdal.GetDriverByName(format).Create(output_fullpath, cols, rows, 1, gdal.GDT_UInt16) # create 16bit unsigned integer output image
+                DataSet.SetGeoTransform((xmin, int(pixelRes), 0, ymax, 0, -int(pixelRes))) # transform the dataset
+                srs = osr.SpatialReference()
+                srs.ImportFromEPSG(UTM)
+                DataSet.SetProjection(srs.ExportToWkt())
+                DataSet.GetRasterBand(1).WriteArray(image)
+                DataSet = None
+                print(output_fullpath)
                 
 
 def export2TIFF(input_folder, outputDirectory, subfolder_prefix = 'out'):
@@ -108,5 +78,3 @@ def export2TIFF(input_folder, outputDirectory, subfolder_prefix = 'out'):
 
 if __name__ == '__main__':
     export2TIFF(mainDirectory, outputDirectory)
-    
-
