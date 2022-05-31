@@ -13,7 +13,6 @@ from upload_to_s3 import ingest_to_S3
 from upload_to_SH_v2 import data_conversion_and_ingest
  
 # Global vars
-# main_Directory = r'D:\DIONE\WP3\SuperResolution\uploadData' # test 
 main_Directory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\uploadData' # final data storage
 
 def unstack_image_and_cognify(input_path):
