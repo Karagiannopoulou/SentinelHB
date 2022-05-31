@@ -5,7 +5,6 @@ from osgeo import gdal
 root = r'.'
 connectingFolder = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
-
 def getting_newdates(root):
     dict10 ={}; dict20={}; list_with_dates_10 = []; list_with_dates_20 = [] 
     
@@ -36,12 +35,8 @@ def multiband_stack_geotiff(bandList, folderPath, sensing_time, rgb_name):
     outVRT = os.path.join(multiband_folder, outVRTName)
     outTiffName = f'S2_{sensing_time}_mosaic_{rgb_name}.tiff'
     outTIFF = os.path.join(multiband_folder, outTiffName)
-#     output_8bitname = f'S2_{rgb_name}_mosaic_{sensing_time}_8bit.tiff'
-#     output_8bit_TIFF = os.path.join(multiband_folder, output_8bitname)
     outds = gdal.BuildVRT(outVRT, tifs, separate=True)
     outds = gdal.Translate(outTIFF, outds)
-    print(outTIFF)    
-#     gdal.RGBFile2PCTFile(outTIFF, output_8bit_TIFF) # convert RGB to 8-bit pseudo palleted image inserted to DNN. Deprecated functionality. We don't want this.    
 
 def single2multi(outputroot):
     list_newDates10 , list_newDates20 = getting_newdates(root)
