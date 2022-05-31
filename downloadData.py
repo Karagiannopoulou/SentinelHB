@@ -5,6 +5,7 @@ import os, sys
 # Data visualisation/Datetime
 import json 
 import datetime
+import numpy as np
 
 # Sentinel Hub libs
 from eolearn.core import SaveTask, FeatureType, LinearWorkflow, OverwritePermission, EOExecutor
@@ -36,7 +37,6 @@ except:
 # Variables for the downloadEO function
 resolution = [10,20]
 
-
 def downloadEO_Lithuania(input_folder, input_task10, input_task20, updatedPatches_Lth, time_interval):
         path10_Lth = os.path.join(input_folder, 'output10'); path20_Lth = os.path.join(input_folder, 'output20')
         path10_Lithuania = makepath(path10_Lth); path20_Lithuania = makepath(path20_Lth)
@@ -46,7 +46,7 @@ def downloadEO_Lithuania(input_folder, input_task10, input_task20, updatedPatche
         save10 = SaveTask(path10_Lithuania, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
         save20 = SaveTask(path20_Lithuania, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
         
-        workflow10= LinearWorkflow(
+        workflow10 = LinearWorkflow(
             input_task10, 
             save10
         )
@@ -92,7 +92,7 @@ def downloadEO_Cyprus(input_folder, input_task10, input_task20, updatedPatches_C
         save10 = SaveTask(path10_Cyprus, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
         save20 = SaveTask(path20_Cyprus, overwrite_permission=OverwritePermission.OVERWRITE_PATCH)
         
-        workflow10= LinearWorkflow(
+        workflow10 = LinearWorkflow(
             input_task10, 
             save10
         )
@@ -103,8 +103,7 @@ def downloadEO_Cyprus(input_folder, input_task10, input_task20, updatedPatches_C
         )
         
         execution_args10 = []; execution_args20 = []
-    
-    
+
         for idx, bbox in enumerate(cbbox_list[cidxs]):
             print(f'Processing Cyprus:{idx}')
             
@@ -129,7 +128,6 @@ def downloadEO_Cyprus(input_folder, input_task10, input_task20, updatedPatches_C
             executor20.make_report()
 
 
-
 def dynamic_startDate(root):
     
     dict10 ={}; dict20={}; list_with_dates_10 = []; list_with_dates_20 = [] 
@@ -138,12 +136,12 @@ def dynamic_startDate(root):
         if 'mainDict10' in ffile:
             jsonsPath10 = os.path.join(root, ffile)
             json10 = open(jsonsPath10)
-            dict10=json.load(json10)          
+            dict10 = json.load(json10)
                         
         elif 'mainDict20' in ffile:
             jsonsPath20 = os.path.join(root, ffile)
             json20 = open(jsonsPath20)
-            dict20=json.load(json20)
+            dict20 = json.load(json20)
     
     for (key10,key20) in zip(dict10.keys(), dict20.keys()):
         date_dts10 = datetime.datetime.strptime(key10, '%Y%m%dT%H%M%S')
@@ -207,6 +205,7 @@ def downloadEO(resolution, start_date, maxcc=0.1):
         maxcc=maxcc,
         time_difference=datetime.timedelta(hours=6),
         config=config,
+        bands_dtype=np.uint16,
         max_threads=5
     )
     
@@ -218,30 +217,14 @@ def downloadEO(resolution, start_date, maxcc=0.1):
         maxcc=maxcc,
         time_difference=datetime.timedelta(hours=6),
         config=config,
+        bands_dtype=np.uint16,
         max_threads=5
     )
     
     downloadEO_Lithuania(ini_folder, input_task10, input_task20, updatedPatches_Lth, time_interval)
     
     downloadEO_Cyprus(ini_folder, input_task10, input_task20, updatedPatches_Cy, time_interval)
-     
-
 
 if __name__ == '__main__':
-    start_datetime = starting_time()
+    start_datetime = starting_time(root)
     downloadEO(resolution, start_datetime)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
