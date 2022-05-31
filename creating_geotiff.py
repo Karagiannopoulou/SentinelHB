@@ -14,7 +14,6 @@ from general_functions import makepath
 mainDirectory = r'D:\DIONE\WP3\SuperResolution\downloadData_2021'
 outputDirectory = r'Z:\EU_PROJECTS\DIONE\WP3\SuperResolution\downloadData_2021'
 
-
 def geotiff_Generator(subdirPath, dateslist, outputsubPath, UTM, format = 'GTiff'):
     # subdirPath: it is the eopatches folder path e.g. .\downloadData\output10\eopatch_10_0
     
